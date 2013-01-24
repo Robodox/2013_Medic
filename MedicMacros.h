@@ -8,6 +8,8 @@
 #define ROLLER_VICTOR_CHANNEL			(1)
 #define	LOADER_VICTOR_CHANNEL			(1)
 #define	CONVEYER_VICTOR_CHANNEL 		(1)
+#define CLIMBER_VICTOR_CHANNEL_A		(1)//dummy number
+#define CLIMBER_VICTOR_CHANNEL_B		(1)//dummy number
 #define FEEDER_SOLENOID_CHANNEL_A       (1)//dummy number
 #define FEEDER_SOLENOID_CHANNEL_B       (1)//dummy number
 	//Shooter

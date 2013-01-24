@@ -21,6 +21,10 @@ private:
 	Victor *intakeRoller;
 	Victor *horizontalVerticalConveyer;
 	Victor *loaderRoller;
+	Victor *climberA;
+	Victor *climberB;
+	Encoder *climberEncoder;
+	DigitalInput *climberSwitch;
 	DoubleSolenoid *feeder;
 };
 #endif

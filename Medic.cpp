@@ -4,6 +4,7 @@
 #include "MedicManipulator.h"
 #include "MedicOperatorInterface.h"
 #include "MedicShooter.h"
+#include "MedicPIDOutput.h"
 #include "MedicMacros.h"
 
 
@@ -13,6 +14,7 @@ class Medic: public IterativeRobot
 	MedicDrive *drive;
 	MedicManipulator *manipulator;
 	MedicOperatorInterface *oi;
+	MedicPIDOutput *pid;
 	Compressor *comp599;
 
 public:
@@ -23,8 +25,8 @@ public:
 		manipulator = new MedicManipulator();
 		oi = new MedicOperatorInterface();
 		shooter = new MedicShooter();
+		pid = new MedicPIDOutput();
 		comp599 = new Compressor(1, 1);//TODO: add real values
-	
 		
 		comp599->Start();
 
@@ -91,6 +93,17 @@ public:
 		drive->setTurnSpeed(oi->getDriveJoystick()->GetX(), oi->getDriveJoystickButton(1));//TODO: Actual button value needed
 		drive->drive();
 		drive->shift(oi->getDriveJoystickButton(1), oi->getDriveJoystickButton(1));
+	}
+	
+	void setPID()
+	{
+		pid->PIDWrite(.1); //0
+		
+	}
+	
+	float getPID()
+	{
+		return pid->result;
 	}
 	
 	void shoot()
