@@ -17,8 +17,7 @@ public:
 	UINT8 getManipJoystickButton(UINT8 button);
 	UINT8 getManipJoystickButtonReleased(UINT8 button);
 	bool getPIDToggle(UINT8 toggle);
-	bool miscSwitch1;
-	bool miscSwitch2;
+	bool getBridgeToggle;
 	DriverStationLCD *dsLCD;
 private:
 	Joystick *joyDrive;
