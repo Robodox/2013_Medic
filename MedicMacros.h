@@ -5,7 +5,6 @@
 #define SHOOTER_ENCODER_CHANNEL_A		(1)
 #define SHOOTER_ENCODER_CHANNEL_B       (1)
 //Channels
-	//Manipulator
 #define ROLLER_VICTOR_CHANNEL			(1)
 #define	LOADER_VICTOR_CHANNEL			(1)
 #define	CONVEYER_VICTOR_CHANNEL 		(1)
@@ -13,8 +12,6 @@
 #define CLIMBER_VICTOR_CHANNEL_B		(1)//dummy number
 #define FEEDER_SOLENOID_CHANNEL_A       (1)//dummy number
 #define FEEDER_SOLENOID_CHANNEL_B       (1)//dummy number
-#define CLIMBER_ENCODER_A				(1)//dummy number
-#define CLIMBER_ENCODER_B				(1)//dummy number
 	//Shooter
 #define SHOOTER_WHEEL_VICTOR_CHANNEL	(1)//dummy number
 
@@ -31,12 +28,6 @@
 #define LOADER_DOWN                     (1)
 #define LOADER_UP                       (-1)
 #define LOADER_OFF                      (0)
-
-	//Climber
-#define CLIMBER_A_MOVE							(1)
-#define CLIMBER_B_MOVE							(1)
-#define CLIMBER_A_STOP							(0)
-#define CLIMBER_B_STOP							(0)
 
 // PID
 #define kP                              (1)
