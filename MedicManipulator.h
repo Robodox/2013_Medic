@@ -29,33 +29,4 @@ private:
 	Encoder *climberEncoder;
 	DoubleSolenoid *feeder;
 };
-// s
-// s 
-///s 
-/*
- * 
- * 
- * 
- * 
- * 
- * 
- * s
- * s
- * 
- * s
- * s
- * s
- * s
- * s
- * 
- * s
- * s
- * s
- * s
- * s
- * s
- * s
- * s
- * 
- */
 #endif
