@@ -30,7 +30,13 @@ MedicDrive::~MedicDrive()
 	 rearRightMotor = NULL;
 }
 
-bool MedicDrive::shift (UINT8 highButton, UINT8 lowButton )
+/*
+ * bool shift
+ * Parameters: UINT8 highButton - high gear button
+ * 			   UINT8 lowButton - low gear button
+ * Summary: Sets the shift in high or low gear. 
+ */
+bool MedicDrive::shift(UINT8 highButton, UINT8 lowButton)
 {
 	 static bool lastGearWasHi = true;
 	    
@@ -48,6 +54,11 @@ bool MedicDrive::shift (UINT8 highButton, UINT8 lowButton )
 	    return lastGearWasHi;	
 }
 
+/*
+ * void setLinVelocity 
+ * Parameters: double linVal - the linear value
+ * Summary: Sets Deadzones and neutral zone.
+ */
 void MedicDrive::setLinVelocity(double linVal) 
 {
 	if(linVal > .1) //DEADZONE
@@ -65,11 +76,22 @@ void MedicDrive::setLinVelocity(double linVal)
 	
 }
 
+/*
+ * double reduceTurn
+ * Parameters: double reduceBy - value to reduce turn speed by
+ * Summary: Reduces the turning speed.
+ */
 double MedicDrive::reduceTurn(double reduceBy)
 {
 	return turnSpeed * reduceBy;
 }
 
+/*
+ * void setTurnSpeed
+ * Parameters: double turn - regular turning speed
+ * 		       bool turboButton - is the turbo switched on?
+ * Summary: Sets the turning speed, and/or off.
+ */
 void MedicDrive::setTurnSpeed(double turn, bool turboButton)
 {
 	if((turn > .1 && !turboButton) || (turn < -.1 && !turboButton)) //DEADZONE
@@ -86,6 +108,11 @@ void MedicDrive::setTurnSpeed(double turn, bool turboButton)
 	}
 }
 
+/*
+ * void drive
+ * Parameters: N/A
+ * Summary: Sets the speed of the wheels seperately.
+ */
 void MedicDrive::drive()
 {
 	frontLeftCmd = linearVelocity - turnSpeed;
@@ -99,6 +126,11 @@ void MedicDrive::drive()
 	rearRightMotor->Set(rearRightCmd, SYNC_STATE_OFF); 
 }
 
+/*
+ * double getVelocity
+ * Parameters: N/A
+ * Summary: Returns the linear velocity.
+ */
 double MedicDrive::getVelocity()
 {
 	return linearVelocity;
