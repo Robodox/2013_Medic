@@ -27,31 +27,61 @@ MedicShooter::~MedicShooter()
 	rpmSource = NULL;
 }
 
+/*
+ * void shootDisc
+ * Parameters: N/A
+ * Summary: Calls setVictors function.
+ */
 void MedicShooter::shootDisc()
 {
 	setVictors();
 }
 
+/*
+ * double getVelocity
+ * Parameters: N/A
+ * Summary: returns the target velocity.
+ */
 double MedicShooter::getVelocity()
 {
 	return targetVelocity;
 }
 
+/*
+ * void setTarget
+ * Parameters: rpm - the RPM of the shooter motor
+ * Summary: Sets the RPM.
+ */
 void MedicShooter::setTarget(double rpm)
 {
 	pidController->SetSetpoint(rpm); 
 }
 
+/*
+ * void setVelocity
+ * Parameters: input - the velocity 
+ * Summary: Sets the target velocity to input.
+ */
 void MedicShooter::setVelocity(double input)
 {
 	targetVelocity = input;
 }
 
+/*
+ * void setVictors
+ * Parameters: N/A
+ * Summary: sets target velocity to shooter wheel
+ */
 void MedicShooter::setVictors()
 {
 	shooterWheel->Set(targetVelocity, SYNC_STATE_OFF);
 }
 
+/*
+ * bool isUpToSpeed
+ * Parameters: N/A
+ * Summary: checks if current velocity has reached target velocity
+ */
 bool MedicShooter::isUpToSpeed()
 {
 	if(targetVelocity == velocity)
