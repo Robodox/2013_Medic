@@ -78,17 +78,17 @@ bool MedicOperatorInterface::getPIDToggle(UINT8 toggle)
 	}
 }
 
-double readTargetDistance()
+double MedicOperatorInterface::readTargetDistance()
 {
 	return dashboard->GetNumber("TargetDistance");
 }
 
-double readTargetHeight()
+double MedicOperatorInterface::readTargetHeight()
 {
 	
 }
 
-double readTargetWidth()
+double MedicOperatorInterface::readTargetWidth()
 {
 	
 }
