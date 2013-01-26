@@ -22,7 +22,7 @@ public:
 	
 	double getJagCmd(bool leftSide);
 	
-	void getVelocity();		
+	double getVelocity();		
 	double reduceTurn(double reduceBy);
 
 	

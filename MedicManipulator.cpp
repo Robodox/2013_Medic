@@ -3,17 +3,24 @@
 
 MedicManipulator::MedicManipulator()
 {
-	MedicManipulator(ROLLER_VICTOR_CHANNEL, LOADER_VICTOR_CHANNEL, CONVEYER_VICTOR_CHANNEL, 
+	MedicManipulator(ROLLER_VICTOR_CHANNEL, LOADER_VICTOR_CHANNEL, CONVEYER_VICTOR_CHANNEL,
+					 CLIMBER_VICTOR_CHANNEL_A, CLIMBER_VICTOR_CHANNEL_B,
+					 CLIMBER_ENCODER_A, CLIMBER_ENCODER_B,
 			         PNUEMATICS_FEEDER_SLOT, FEEDER_SOLENOID_CHANNEL_A, FEEDER_SOLENOID_CHANNEL_B);
 }
 
 MedicManipulator::MedicManipulator(UINT8 intakeVictorChannel, UINT8 loaderVictorChannel, 
-								   UINT8 conveyerVictorChannel, UINT8 pnuemSlot, 
+								   UINT8 conveyerVictorChannel, UINT8 climberVictorChannelA, 
+								   UINT8 climberVictorChannelB, UINT32 climberEncoderA, 
+								   UINT32 climberEncoderB, UINT8 pnuemSlot,
 								   UINT8 feederSolA, UINT8 feederSolB)
 {		
 	intakeRoller = new Victor(intakeVictorChannel);
 	horizontalVerticalConveyer = new Victor(conveyerVictorChannel);
 	loaderRoller = new Victor(loaderVictorChannel);
+	climberA = new Victor(climberVictorChannelA);
+	climberB = new Victor(climberVictorChannelB);
+	climberEncoder = new Encoder(climberEncoderA, climberEncoderB, false, Encoder::k1X);
 	feeder = new DoubleSolenoid(pnuemSlot, feederSolA, feederSolB);
 }
 
@@ -67,6 +74,30 @@ void MedicManipulator::loadMagazine(bool load, bool unload)
 	else
 	{
 		loaderRoller->Set(LOADER_OFF, SYNC_STATE_OFF);
+	}
+}
+
+void MedicManipulator::climbPyramidA(bool climbA)
+{
+	if(climbA)
+	{
+		climberA->Set(CLIMBER_A_MOVE, SYNC_STATE_OFF);
+	}
+	else
+	{
+		climberA->Set(CLIMBER_A_STOP, SYNC_STATE_OFF);
+	}
+}
+
+void MedicManipulator::climbPyramidB(bool climbB)
+{
+	if(climbB)
+	{
+		climberB->Set(CLIMBER_B_MOVE, SYNC_STATE_OFF);
+	}
+	else
+	{
+		climberB->Set(CLIMBER_B_STOP, SYNC_STATE_OFF);
 	}
 }
 

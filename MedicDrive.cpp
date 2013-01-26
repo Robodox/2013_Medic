@@ -99,7 +99,7 @@ void MedicDrive::drive()
 	rearRightMotor->Set(rearRightCmd, SYNC_STATE_OFF); 
 }
 
-void MedicDrive::getVelocity()
+double MedicDrive::getVelocity()
 {
-	
+	return linearVelocity;
 }
