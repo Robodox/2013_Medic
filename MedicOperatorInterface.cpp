@@ -7,6 +7,7 @@ MedicOperatorInterface::MedicOperatorInterface()
 	DriverStation *dsSimple = DriverStation::GetInstance();
 	ds = &dsSimple->GetEnhancedIO();
 	dsLCD = DriverStationLCD::GetInstance();	
+	dashboard->init();
 }
 
 MedicOperatorInterface::~MedicOperatorInterface()
@@ -75,4 +76,19 @@ bool MedicOperatorInterface::getPIDToggle(UINT8 toggle)
 	{
 		return false;
 	}
+}
+
+double readTargetDistance()
+{
+	return dashboard->GetNumber("TargetDistance");
+}
+
+double readTargetHeight()
+{
+	
+}
+
+double readTargetWidth()
+{
+	
 }

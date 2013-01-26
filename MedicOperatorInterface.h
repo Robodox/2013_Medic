@@ -4,6 +4,10 @@
 
 #include "WPILib.h"
 #include "MedicMacros.h"
+#include "SmartDashboard/SmartDashboard.h"
+#include "SmartDashboard/NamedSendable.h"
+#include "SmartDashboard/Sendable.h"
+#include "SmartDashboard/SendableChooser.h"
 
 class MedicOperatorInterface
 {
@@ -51,9 +55,13 @@ public:
 	 * Summary: is the PID toggled?
 	 */
 	bool getPIDToggle(UINT8 toggle);
-	bool miscSwitch1;
-	bool miscSwitch2;
+	
+	double readTargetDistance();
+	double readTargetHeight();
+	double readTargetWidth();
+	
 	DriverStationLCD *dsLCD;
+	SmartDashboard *dashboard;
 private:
 	Joystick *joyDrive;
 	Joystick *joyManip;
