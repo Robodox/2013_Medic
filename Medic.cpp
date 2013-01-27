@@ -108,12 +108,18 @@ public:
 	
 	void shoot()
 	{
-		if(oi->getPIDToggle(1))
+		if(oi->readPIDToggle(1))//TODO: Macro goes here
 		{
 			shooter->setTarget((oi->getManipJoystick()->GetThrottle()+1)/2);
 			shooter->setVelocity(shooter->pidOutput->readOutput());
 			shooter->shootDisc();
 		}
+		else
+		{
+			shooter->setVelocity((oi->getManipJoystick()->GetThrottle()+1)/2);
+			shooter->shootDisc();
+		}
+		
 	}
 	
 	void intake()
@@ -133,7 +139,8 @@ public:
 			manipulator->feedShooter(false); // feed				
 		}
 
-	}			
+	}		
+	
 	    		
 };
 

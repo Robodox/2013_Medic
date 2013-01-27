@@ -66,7 +66,7 @@ UINT8 MedicOperatorInterface::getManipJoystickButton(UINT8 button)
  * Parameters: UINT8 toggle
  * Summary: is the PID toggled?
  */
-bool MedicOperatorInterface::getPIDToggle(UINT8 toggle)
+bool MedicOperatorInterface::readPIDToggle(UINT8 toggle)
 {
 	if(ds->GetDigital(toggle) == 1)
 	{
@@ -77,6 +77,40 @@ bool MedicOperatorInterface::getPIDToggle(UINT8 toggle)
 		return false;
 	}
 }
+
+bool MedicOperatorInterface::readClimbSafetyEnable(UINT8 toggle)
+{
+	if(ds->GetDigital(toggle) == 1)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+}
+
+int MedicOperatorInterface::readShooterTargeting(UINT8 toggle1, UINT8 toggle2)
+{
+	if(ds->GetDigital(toggle1) == 1 && ds->GetDigital(toggle2) == 0)
+	{
+		return highGoal;
+	}
+	else if(ds->GetDigital(toggle1) == 0 && ds->GetDigital(toggle2) == 0)
+	{
+		return middleGoal;
+	}
+	else if(ds->GetDigital(toggle1) == 0 && ds->GetDigital(toggle2) == 1)
+	{
+		return manualTargeting;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
 
 double MedicOperatorInterface::readTargetDistance()
 {

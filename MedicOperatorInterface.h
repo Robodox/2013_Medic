@@ -11,9 +11,12 @@
 
 class MedicOperatorInterface
 {
+	
 public:
 	MedicOperatorInterface();	
 	~MedicOperatorInterface();
+	
+	enum ShooterTargeting { highGoal = 1, middleGoal = 2, manualTargeting = 3}shooterTarget;
 	
 	/*
 	 * Joystick getDriveJoystick
@@ -54,14 +57,19 @@ public:
 	 * Parameters: UINT8 toggle
 	 * Summary: is the PID toggled?
 	 */
-	bool getPIDToggle(UINT8 toggle);
+	bool readPIDToggle(UINT8 toggle);
+	bool readClimbSafetyEnable(UINT8 toggle);
+	
+	int readShooterTargeting(UINT8 toggle1, UINT8 toggle2);
 	
 	double readTargetDistance();
 	double readTargetHeight();
 	double readTargetWidth();
 	
+	
 	DriverStationLCD *dsLCD;
 	SmartDashboard *dashboard;
+
 private:
 	Joystick *joyDrive;
 	Joystick *joyManip;
