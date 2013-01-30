@@ -119,10 +119,10 @@ double MedicOperatorInterface::readTargetDistance()
 
 double MedicOperatorInterface::readTargetHeight()
 {
-	
+	//return dashboard->GetNumber("TargetHeight");
 }
 
 double MedicOperatorInterface::readTargetWidth()
 {
-	
+	//return dashboard->GetNumber("TargetWidth");
 }
