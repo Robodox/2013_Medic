@@ -72,15 +72,32 @@ public:
 	//TODO: write auton drive(angle, speed) & drive(distance, speed)
 	void AutonomousPeriodic()
 	{
-		shoot(true);	//autonShoot
-		//drive();
-		intake(true);	//autonIntake
-		//drive();
-		shoot(true);	//autonShoot
-		//drive();
-		intake(true);	//autonIntake
-		//drive();
-		shoot(true);	//autonShoot
+		shoot(true);					//shoot preloads
+		
+		drive->autoTurn(55, TURN_SPEED); 		
+		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number		 		
+		drive->autoTurn(-90, TURN_SPEED); 		
+		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 		//get the weirdly angled discs OF DOOM
+		intake(true);					
+		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 		
+		
+		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 
+		drive->autoTurn(55, TURN_SPEED); 		//aim and then shoot discs of doom 
+		shoot(true);	
+		
+		drive->autoTurn(55, TURN_SPEED); 
+		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 
+		drive->autoTurn(-90, TURN_SPEED); 
+		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 		//get OTHER weirdly angled discs of doom
+		intake(true);	
+		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 
+		
+		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number
+		drive->autoTurn(55, TURN_SPEED);			//aim and shoot OTHER weirdly angled discs of doom
+		shoot(true);	
+		
+		
+		//like a boss
 	}
 	
 	void TeleopPeriodic()
@@ -154,9 +171,9 @@ public:
 	
 	}	
 	
-	void shoot(bool autonShoot)
+	void shoot(bool isPID)
 	{
-		if(autonShoot)
+		if(isPID)
 		{
 			shooter->setTarget(FULL_SPEED);
 			shooter->setVelocity(shooter->pidOutput->readOutput());

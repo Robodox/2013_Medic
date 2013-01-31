@@ -38,6 +38,10 @@
 #define CLIMBER_A_STOP							(0)
 #define CLIMBER_B_STOP							(0)
 
+//Drive
+#define DRIVE_SPEED						    (1) //TODO: dummy number
+#define TURN_SPEED						    (1) //TODO: dummy number
+
 // PID
 #define kP                              (1)
 #define kI								(1)
@@ -51,5 +55,6 @@
 #define INCHES_PER_TICK                (0.075398)   // 6pi / 250
 #define TICKS_PER_DEGREE			   (4.398037)   //18.99952 * (250 / (180 * 6))
 #define FULL_SPEED 					   (1)
+
 
 #endif
