@@ -59,7 +59,11 @@ public:
 	 * Summary: Reduces the turning speed.
 	 */
 	double reduceTurn(double reduceBy);
-
+	void autoDrive(double target, double speed);
+	void autoTurn(double target, double speed);
+	
+	enum autoFunctions{ linear, turn }functions;
+	bool isAtTarget(autoFunctions functionType);	
 	
 	DoubleSolenoid *shifter;
 	
@@ -76,5 +80,13 @@ private:
 	double rearLeftCmd;
 	double frontRightCmd;
 	double rearRightCmd;
+	
+
+	
+	Encoder *leftEncoder;
+	Encoder *rightEncoder;
+	
+	bool isAtDriveTarget;
+	bool isAtTurnTarget;
 };
 #endif

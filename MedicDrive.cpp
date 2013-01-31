@@ -126,6 +126,127 @@ void MedicDrive::drive()
 	rearRightMotor->Set(rearRightCmd, SYNC_STATE_OFF); 
 }
 
+void MedicDrive::autoDrive(double target, double speed)
+{
+	static bool init = true;
+	static double initTicks = 0;
+	static double currentTicks = 0;
+	static double deltaTicks = 0;
+	static double targetTicks = 0;
+	static bool isNegative = false;
+	
+	if(init)
+	{
+		initTicks = (leftEncoder->Get() + rightEncoder->Get()) / 2;	
+		targetTicks = INCHES_PER_TICK * target;
+		if(targetTicks < 0)
+		{
+			isNegative = true;
+		}
+		else
+		{
+			isNegative = false;
+		}
+		init = false;
+	}
+	else
+	{
+		currentTicks = (leftEncoder->Get() + rightEncoder->Get()) / 2;		
+		if(deltaTicks < targetTicks && !isNegative)
+		{
+			setLinVelocity(speed);
+			isAtDriveTarget = false;
+		}
+		else if(deltaTicks > targetTicks && isNegative)
+		{
+			setLinVelocity(speed);
+			isAtDriveTarget = false;
+		}
+		else
+		{
+			setLinVelocity(0);
+			isAtDriveTarget = true;
+			init = true;
+		}
+		drive();
+	}
+}
+void MedicDrive::autoTurn(double target, double speed)
+{
+	static bool init = true;
+	static double initTicks = 0;
+	static double currentTicks = 0;
+	static double deltaTicks = 0;
+	static double targetTicks = 0;	
+	static bool isNegative = false;
+	
+	if(init)
+	{
+		initTicks = leftEncoder->Get();
+		targetTicks = TICKS_PER_DEGREE * target;
+		if(targetTicks < 0)
+		{
+			isNegative = true;
+		}
+		else
+		{
+			isNegative = false;
+		}
+		init = false;
+	}
+	else
+	{
+		currentTicks = leftEncoder->Get();		
+		if(deltaTicks < targetTicks && !isNegative)
+		{
+			setTurnSpeed(speed, false);
+			isAtTurnTarget = false;
+
+		}
+		else if(deltaTicks > targetTicks && isNegative)
+		{
+			setTurnSpeed(speed, false);
+			isAtTurnTarget = false;
+		}
+		else
+		{
+			setTurnSpeed(0, false);
+			isAtTurnTarget = true;
+			init = true;
+		}
+		drive();
+	}
+}
+bool MedicDrive::isAtTarget(autoFunctions functionType)
+{
+	if(functionType == linear)
+	{
+		if(isAtDriveTarget)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else if(functionType == turn)
+	{
+		if(isAtTurnTarget)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
 /*
  * double getVelocity
  * Parameters: N/A

@@ -48,5 +48,8 @@
 
 //  Misc
 #define SYNC_STATE_OFF                 (0)
+#define INCHES_PER_TICK                (0.075398)   // 6pi / 250
+#define TICKS_PER_DEGREE			   (4.398037)   //18.99952 * (250 / (180 * 6))
+#define FULL_SPEED 					   (1)
 
 #endif

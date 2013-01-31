@@ -14,7 +14,7 @@ class Medic: public IterativeRobot
 	MedicDrive *drive;
 	MedicManipulator *manipulator;
 	MedicOperatorInterface *oi;
-	MedicPIDOutput *pid;
+	MedicPIDOutput *pidOutput;
 	Compressor *comp599;
 
 public:
@@ -25,7 +25,7 @@ public:
 		manipulator = new MedicManipulator();
 		oi = new MedicOperatorInterface();
 		shooter = new MedicShooter();
-		pid = new MedicPIDOutput();
+		pidOutput = new MedicPIDOutput();
 		comp599 = new Compressor(1, 1);//TODO: add real values
 		
 		comp599->Start();
@@ -69,9 +69,18 @@ public:
 		
 	}
 	
+	//TODO: write auton drive(angle, speed) & drive(distance, speed)
 	void AutonomousPeriodic()
 	{
-		
+		shoot(true);	//autonShoot
+		//drive();
+		intake(true);	//autonIntake
+		//drive();
+		shoot(true);	//autonShoot
+		//drive();
+		intake(true);	//autonIntake
+		//drive();
+		shoot(true);	//autonShoot
 	}
 	
 	void TeleopPeriodic()
@@ -95,17 +104,6 @@ public:
 		drive->shift(oi->getDriveJoystickButton(1), oi->getDriveJoystickButton(1));
 	}
 	
-	void setPID()
-	{
-		pid->PIDWrite(.1); //0
-		
-	}
-	
-	float getPID()
-	{
-		return pid->result;
-	}
-	
 	void shoot()
 	{
 		if(oi->readPIDToggle(1))//TODO: Macro goes here
@@ -124,23 +122,53 @@ public:
 	
 	void intake()
 	{
-		if(oi->getManipJoystickButton(1) == 1)
+		if(oi->getManipJoystickButton(1) == 1)//TODO: Macro goes here
 		{
 			manipulator->intakeDisc(true); // intake
 			manipulator->conveyer(true); // move
-			manipulator->loadMagazine(true, false); // load, unload
-			manipulator->feedShooter(true); // feed
+			manipulator->loadMagazine(true, false); // load, unload			
 		}
 		else
 		{
 			manipulator->intakeDisc(false); // intake
 			manipulator->conveyer(false); // move
 			manipulator->loadMagazine(false, true); // load, unload
-			manipulator->feedShooter(false); // feed				
 		}
 
-	}		
+	}	
 	
+	void intake(bool autonIntake)
+	{
+		if(autonIntake)
+		{
+			manipulator->intakeDisc(true); // intake
+			manipulator->conveyer(true); // move
+			manipulator->loadMagazine(true, false); // load, unload			
+		}
+		else
+		{
+			manipulator->intakeDisc(false); // intake
+			manipulator->conveyer(false); // move
+			manipulator->loadMagazine(false, true); // load, unload
+		}
+	
+	}	
+	
+	void shoot(bool autonShoot)
+	{
+		if(autonShoot)
+		{
+			shooter->setTarget(FULL_SPEED);
+			shooter->setVelocity(shooter->pidOutput->readOutput());
+			shooter->shootDisc();
+		}
+		else
+		{
+			shooter->setVelocity(FULL_SPEED);
+			shooter->shootDisc();
+		}
+		
+	}	
 	    		
 };
 
