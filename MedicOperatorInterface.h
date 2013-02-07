@@ -63,8 +63,9 @@ public:
 	int readShooterTargeting(UINT8 toggle1, UINT8 toggle2);
 	
 	double readTargetDistance();
-	double readTargetHeight();
-	double readTargetWidth();
+	double readTargetCenterX();
+	double readTargetCenterY();
+	bool readAutoAimToggle();
 	
 	
 	DriverStationLCD *dsLCD;

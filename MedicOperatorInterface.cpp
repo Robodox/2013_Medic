@@ -10,6 +10,7 @@ MedicOperatorInterface::MedicOperatorInterface()
 	dashboard->init();
 }
 
+
 MedicOperatorInterface::~MedicOperatorInterface()
 {
 	delete dsLCD;
@@ -117,12 +118,24 @@ double MedicOperatorInterface::readTargetDistance()
 	return dashboard->GetNumber("TargetDistance");
 }
 
-double MedicOperatorInterface::readTargetHeight()
+double MedicOperatorInterface::readTargetCenterX()
 {
-	//return dashboard->GetNumber("TargetHeight");
+	return dashboard->GetNumber("TargetCenterX");
 }
 
-double MedicOperatorInterface::readTargetWidth()
+double MedicOperatorInterface::readTargetCenterY()
 {
-	//return dashboard->GetNumber("TargetWidth");
+	return dashboard->GetNumber("TargetCenterY");
+}
+
+bool MedicOperatorInterface::readAutoAimToggle()
+{
+	if(ds->GetDigital(1))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

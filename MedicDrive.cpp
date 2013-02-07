@@ -4,15 +4,25 @@ MedicDrive::MedicDrive()
 {
 	linearVelocity = 0;
 	turnSpeed = 0;
+	isAtDriveTarget = false;
+	isAtTurnTarget = false;
+	
+	currentTicks = 0; //average of encoder values; used in auton
+	targetTicks = 0;  //target encoder values; used in auton
+	deltaTicks = 0;   //change in encoder values; used in auton
+	error = 0;        //the offset of target ticks relative to current ticks; used in auton
 
 	shifter = new DoubleSolenoid(1, 2, 3); //PNEUMATICS_BUMPER_SLOT, SHIFTER_SOLENOID_CHANNEL_A, SHIFTER_SOLENOID_CHANNEL_B
 	shifter->Set(DoubleSolenoid::kReverse);
 																
-	frontLeftMotor = new Talon(1);  //DRIVE_FRONT_LEFT_MOTOR_CHANNEL 
-	rearLeftMotor = new Talon(1);   //DRIVE_REAR_LEFT_MOTOR_CHANNEL
-	frontRightMotor = new Talon(1); //DRIVE_FRONT_RIGHT_MOTOR_CHANNEL
-	rearRightMotor = new Talon(1);  //DRIVE_REAR_RIGHT_MOTOR_CHANNEL
-								   	    			//DIGITAL_SIDECAR_SLOT_2, RIGHT_DRIVE_ENCODER_B_CHANNEL, CounterBase::k1X
+	frontLeftMotor = new Jaguar(1, DRIVE_FRONT_LEFT_MOTOR_CHANNEL);   //TODO: Talon
+	rearLeftMotor = new Jaguar(1, DRIVE_REAR_LEFT_MOTOR_CHANNEL);   //TODO: TALON
+	frontRightMotor = new Jaguar(1, DRIVE_FRONT_RIGHT_MOTOR_CHANNEL); //TODO: Talon
+	rearRightMotor = new Jaguar(1, DRIVE_REAR_RIGHT_MOTOR_CHANNEL);//TODO: Talon
+	leftEncoder = new Encoder(LEFT_DRIVE_ENCODER_CHANNEL_A, LEFT_DRIVE_ENCODER_CHANNEL_B, true, Encoder::k1X);
+	rightEncoder = new Encoder(RIGHT_DRIVE_ENCODER_CHANNEL_A, RIGHT_DRIVE_ENCODER_CHANNEL_B, false, Encoder::k1X);
+	
+
 }
 
 MedicDrive::~MedicDrive()
@@ -71,9 +81,14 @@ void MedicDrive::setLinVelocity(double linVal)
 	}
 	else 
 	{
-		linearVelocity = .1; //NEUTRAL
+		linearVelocity = 0; //NEUTRAL
 	}
 	
+}
+
+double MedicDrive::getLinVelocity()
+{
+	return linearVelocity;
 }
 
 /*
@@ -96,7 +111,7 @@ void MedicDrive::setTurnSpeed(double turn, bool turboButton)
 {
 	if((turn > .1 && !turboButton) || (turn < -.1 && !turboButton)) //DEADZONE
 	{
-		turnSpeed = turn;//*REDUCTION;
+		turnSpeed = turn * REDUCTION;
 	}
 	if(turn< .1 && turn > -.1) //DEADZONE
 	{
@@ -108,6 +123,11 @@ void MedicDrive::setTurnSpeed(double turn, bool turboButton)
 	}
 }
 
+double MedicDrive::getTurnSpeed()
+{
+	return turnSpeed;
+}
+
 /*
  * void drive
  * Parameters: N/A
@@ -115,13 +135,13 @@ void MedicDrive::setTurnSpeed(double turn, bool turboButton)
  */
 void MedicDrive::drive()
 {
-	frontLeftCmd = linearVelocity - turnSpeed;
-	rearLeftCmd = linearVelocity - turnSpeed;
-	frontRightCmd = -linearVelocity - turnSpeed;
-	rearRightCmd = -linearVelocity - turnSpeed;
+	frontLeftCmd = linearVelocity + turnSpeed;
+	rearLeftCmd = linearVelocity + turnSpeed;
+	frontRightCmd = linearVelocity - turnSpeed;
+	rearRightCmd = linearVelocity - turnSpeed;
 	
-	frontLeftMotor->Set(frontLeftCmd, SYNC_STATE_OFF);
-	rearLeftMotor->Set(rearLeftCmd, SYNC_STATE_OFF);
+	frontLeftMotor->Set(-frontLeftCmd, SYNC_STATE_OFF);
+	rearLeftMotor->Set(-rearLeftCmd, SYNC_STATE_OFF);
 	frontRightMotor->Set(frontRightCmd, SYNC_STATE_OFF); 
 	rearRightMotor->Set(rearRightCmd, SYNC_STATE_OFF); 
 }
@@ -130,34 +150,25 @@ void MedicDrive::autoDrive(double target, double speed)
 {
 	static bool init = true;
 	static double initTicks = 0;
-	static double currentTicks = 0;
-	static double deltaTicks = 0;
-	static double targetTicks = 0;
-	static bool isNegative = false;
+	
+	currentTicks = (leftEncoder->Get() + rightEncoder->Get()) / 2;
 	
 	if(init)
 	{
-		initTicks = (leftEncoder->Get() + rightEncoder->Get()) / 2;	
-		targetTicks = INCHES_PER_TICK * target;
-		if(targetTicks < 0)
-		{
-			isNegative = true;
-		}
-		else
-		{
-			isNegative = false;
-		}
+		initTicks = currentTicks;	
+		targetTicks = target / INCHES_PER_TICK;
 		init = false;
 	}
 	else
-	{
-		currentTicks = (leftEncoder->Get() + rightEncoder->Get()) / 2;		
-		if(deltaTicks < targetTicks && !isNegative)
+	{	
+		deltaTicks = currentTicks - initTicks;
+		error = targetTicks - deltaTicks;
+		if(error < 0 - AUTO_DRIVE_DEADZONE / INCHES_PER_TICK)
 		{
-			setLinVelocity(speed);
+			setLinVelocity(-speed);
 			isAtDriveTarget = false;
 		}
-		else if(deltaTicks > targetTicks && isNegative)
+		else if(error > 0 + AUTO_DRIVE_DEADZONE / INCHES_PER_TICK)
 		{
 			setLinVelocity(speed);
 			isAtDriveTarget = false;
@@ -178,32 +189,26 @@ void MedicDrive::autoTurn(double target, double speed)
 	static double currentTicks = 0;
 	static double deltaTicks = 0;
 	static double targetTicks = 0;	
-	static bool isNegative = false;
+	static double error = 0;
 	
 	if(init)
 	{
-		initTicks = leftEncoder->Get();
-		targetTicks = TICKS_PER_DEGREE * target;
-		if(targetTicks < 0)
-		{
-			isNegative = true;
-		}
-		else
-		{
-			isNegative = false;
-		}
+		initTicks = leftEncoder->Get() - rightEncoder->Get();
+		targetTicks = target / TICKS_PER_DEGREE;
 		init = false;
 	}
 	else
 	{
-		currentTicks = leftEncoder->Get();		
-		if(deltaTicks < targetTicks && !isNegative)
+		currentTicks = leftEncoder->Get() - rightEncoder->Get();
+		deltaTicks = currentTicks - initTicks;
+		error = targetTicks - deltaTicks;
+		if(error < 0 - AUTO_TURN_DEADZONE / TICKS_PER_DEGREE)
 		{
-			setTurnSpeed(speed, false);
+			setTurnSpeed(-speed, false);
 			isAtTurnTarget = false;
 
 		}
-		else if(deltaTicks > targetTicks && isNegative)
+		else if(error > 0 + AUTO_TURN_DEADZONE / TICKS_PER_DEGREE)
 		{
 			setTurnSpeed(speed, false);
 			isAtTurnTarget = false;
@@ -245,6 +250,12 @@ bool MedicDrive::isAtTarget(autoFunctions functionType)
 	{
 		return false;
 	}
+}
+
+void MedicDrive::resetAtTarget()
+{
+	isAtDriveTarget = false;
+	isAtTurnTarget = false;
 }
 
 /*

@@ -7,6 +7,7 @@
 #include "MedicPIDOutput.h"
 #include "MedicMacros.h"
 
+int step;
 
 class Medic: public IterativeRobot
 {
@@ -28,7 +29,9 @@ public:
 		pidOutput = new MedicPIDOutput();
 		comp599 = new Compressor(1, 1);//TODO: add real values
 		
-		comp599->Start();
+		oi->dashboard->init();
+		comp599->Stop();
+		
 
 	}
 	
@@ -39,23 +42,21 @@ public:
 	
 	void DisabledInit()
 	{
-		
+		drive->leftEncoder->Start();
+		drive->rightEncoder->Start();		
 	}
 	
 	void AutonomousInit()
 	{
-
-		
+		step = 0;
+		drive->leftEncoder->Reset();
+		drive->rightEncoder->Reset();
+		drive->isAtDriveTarget = false;
 	}
 	
 	void TeleopInit()
 	{
-		while(IsOperatorControl())
-		{
-			intake();
-			shoot();
 		
-		}
 		
 	}
    
@@ -66,47 +67,79 @@ public:
 	
 	void DisabledPeriodic()
 	{
-		
+		step = 0;
+		drive->leftEncoder->Reset();
+		drive->rightEncoder->Reset();
+		drive->isAtDriveTarget = false;
+		smartDashboardPrint();
+
 	}
 	
-	//TODO: write auton drive(angle, speed) & drive(distance, speed)
+	//TODO: write auton turn(angle, speed) & drive(distance, speed)
 	void AutonomousPeriodic()
 	{
-		shoot(true);					//shoot preloads
+		//shoot(true);					//shoot preloads
 		
-		drive->autoTurn(55, TURN_SPEED); 		
-		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number		 		
-		drive->autoTurn(-90, TURN_SPEED); 		
-		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 		//get the weirdly angled discs OF DOOM
-		intake(true);					
-		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 		
-		
-		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 
-		drive->autoTurn(55, TURN_SPEED); 		//aim and then shoot discs of doom 
-		shoot(true);	
-		
-		drive->autoTurn(55, TURN_SPEED); 
-		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 
-		drive->autoTurn(-90, TURN_SPEED); 
-		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 		//get OTHER weirdly angled discs of doom
-		intake(true);	
-		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 
-		
-		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number
-		drive->autoTurn(55, TURN_SPEED);			//aim and shoot OTHER weirdly angled discs of doom
-		shoot(true);	
-		
-		
+		//drive->autoTurn(55, TURN_SPEED); 	
+		smartDashboardPrint();
+		if(step == 0)
+		{
+			drive->autoTurn(24, .75);//TODO: dummy number
+			if(drive->isAtTarget(MedicDrive::turn))
+			{
+			drive->resetAtTarget();
+			step++;
+			}
+
+		}
+//		drive->autoTurn(-90, TURN_SPEED); 		
+//		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 		//get the weirdly angled discs OF DOOM
+//		intake(true);					
+//		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 		
+//		
+//		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 
+//		drive->autoTurn(55, TURN_SPEED); 		//aim and then shoot discs of doom 
+//		shoot(true);	
+//	
+//		drive->autoTurn(55, TURN_SPEED); 
+//		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 
+//		drive->autoTurn(-90, TURN_SPEED); 
+//		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 		//get OTHER weirdly angled discs of doom
+//		intake(true);	
+//		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 
+//		
+//		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number
+//		drive->autoTurn(55, TURN_SPEED);			//aim and shoot OTHER weirdly angled discs of doom
+//		shoot(true);		
 		//like a boss
 	}
 	
 	void TeleopPeriodic()
 	{
-		while(IsOperatorControl())
+		  oi->dsLCD->Printf(DriverStationLCD::kUser_Line4, 1, "printing works!1 woot");	
+		  oi->dsLCD->UpdateLCD();
+		  while(IsOperatorControl())
 		{
-		  teleDrive();
+			  //if(oi->readAutoAimToggle())
+			  //{
+			//	  autoAim(oi->readTargetCenterX(), oi->readTargetCenterY());
+			  //}
+			  //else
+			  //{
+				  teleDrive();
+			//  }
+			  oi->dsLCD->Printf(DriverStationLCD::kUser_Line3, 1,  "linearVelocity :%f", drive->getLinVelocity());
+			  oi->dsLCD->PrintfLine(DriverStationLCD::kUser_Line1, "Left Encoder %f", drive->leftEncoder->GetRaw());
+			  oi->dsLCD->PrintfLine(DriverStationLCD::kUser_Line2, "Right Encoder %f", drive->rightEncoder->GetRaw());
+			  oi->dsLCD->UpdateLCD();
+		  oi->dashboard->PutNumber("Linear Velocity", drive->getLinVelocity());
+		  oi->dashboard->PutNumber("Turn", drive->getTurnSpeed());
+		  oi->dashboard->PutNumber("Joy Y", oi->getDriveJoystick()->GetY(Joystick::kRightHand));
+		  oi->dashboard->PutNumber("joy X", oi->getDriveJoystick()->GetX(Joystick::kRightHand));
+		  oi->dashboard->PutNumber("Left Encoder", drive->leftEncoder->Get());
+		  oi->dashboard->PutNumber("Right Encoder", drive->rightEncoder->Get());
 		}
-	}
+	};
 	
 	void TestPeriodic()
 	{
@@ -115,10 +148,10 @@ public:
 	
 	void teleDrive()
 	{
-		drive->setLinVelocity(oi->getDriveJoystick()->GetY());
-		drive->setTurnSpeed(oi->getDriveJoystick()->GetX(), oi->getDriveJoystickButton(1));//TODO: Actual button value needed
+		drive->setLinVelocity(-oi->getDriveJoystick()->GetY(Joystick::kRightHand));
+		drive->setTurnSpeed(oi->getDriveJoystick()->GetX(Joystick::kRightHand), oi->getDriveJoystickButton(1));//TODO: Actual button value needed
 		drive->drive();
-		drive->shift(oi->getDriveJoystickButton(1), oi->getDriveJoystickButton(1));
+		drive->shift(oi->getDriveJoystickButton(8), oi->getDriveJoystickButton(9));
 	}
 	
 	void shoot()
@@ -186,6 +219,60 @@ public:
 		}
 		
 	}	
+	
+	void autoAim(double targetX, double targetY)
+	{
+		if(targetX < 320 - AIM_DEADZONE)
+		{
+			//turn left
+			drive->setTurnSpeed(-.3, false);
+			drive->drive();
+		}
+		else if(targetX > 320 + AIM_DEADZONE)
+		{
+			//turn right
+			drive->setTurnSpeed(.3, false);
+			drive->drive();
+		}
+		else
+		{
+			//stop
+			drive->setTurnSpeed(0, false);
+			drive->drive();
+		}
+		if(targetY < 240 - AIM_DEADZONE)
+		{
+			//aim down
+			drive->setLinVelocity(.3);
+			drive->drive();
+		}
+		else if(targetY > 240 + AIM_DEADZONE)
+		{
+			//aim up
+			drive->setLinVelocity(-.3);
+			drive->drive();
+		}
+		else
+		{
+			//stop
+			drive->setLinVelocity(0);
+			drive->drive();
+		}
+	}
+	
+	void smartDashboardPrint()
+	{
+		oi->dashboard->PutNumber("Linear Velocity", drive->getLinVelocity());
+		oi->dashboard->PutNumber("Left Encoder", drive->leftEncoder->Get());
+		oi->dashboard->PutNumber("Right Encoder", drive->rightEncoder->Get());
+		oi->dashboard->PutBoolean("isAtTarget", drive->isAtDriveTarget);
+		oi->dashboard->PutNumber("step", step);
+		oi->dashboard->PutNumber("currentTicks", drive->currentTicks);
+		oi->dashboard->PutNumber("targetTicks", drive->targetTicks);
+		oi->dashboard->PutNumber("deltaTicks", drive->deltaTicks);
+		oi->dashboard->PutNumber("error", drive->error);
+		oi->dashboard->PutNumber("errorDuplicate", drive->error);
+	}
 	    		
 };
 

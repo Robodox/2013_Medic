@@ -65,13 +65,24 @@ public:
 	enum autoFunctions{ linear, turn }functions;
 	bool isAtTarget(autoFunctions functionType);	
 	
-	DoubleSolenoid *shifter;
+	void resetAtTarget();
 	
+	DoubleSolenoid *shifter;
+
+	Encoder *leftEncoder;
+	Encoder *rightEncoder;
+	double currentTicks ; //average of encoder values; used in auton
+		double targetTicks;  //target encoder values; used in auton
+		double deltaTicks;   //change in encoder values; used in auton
+		double error;        //the offset of target ticks relative to current ticks; used in auton
+
+		bool isAtDriveTarget;
+		bool isAtTurnTarget;
 private:	
-	Talon *frontLeftMotor;
-	Talon *rearLeftMotor;
-	Talon *frontRightMotor;
-	Talon *rearRightMotor;
+	Jaguar *frontLeftMotor; //TODO: Talon
+	Jaguar *rearLeftMotor;//TODO: Talon
+	Jaguar *frontRightMotor;//TODO: Talon
+	Jaguar *rearRightMotor;//TODO: Talon
 	
 	double linearVelocity; 
 	double turnSpeed; 
@@ -81,12 +92,5 @@ private:
 	double frontRightCmd;
 	double rearRightCmd;
 	
-
-	
-	Encoder *leftEncoder;
-	Encoder *rightEncoder;
-	
-	bool isAtDriveTarget;
-	bool isAtTurnTarget;
 };
 #endif

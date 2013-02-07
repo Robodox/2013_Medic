@@ -9,6 +9,7 @@ MedicManipulator::MedicManipulator()
 			         PNUEMATICS_FEEDER_SLOT, FEEDER_SOLENOID_CHANNEL_A, FEEDER_SOLENOID_CHANNEL_B);
 }
 
+
 MedicManipulator::MedicManipulator(UINT8 intakeVictorChannel, UINT8 loaderVictorChannel, 
 								   UINT8 conveyerVictorChannel, UINT8 climberVictorChannelA, 
 								   UINT8 climberVictorChannelB, UINT32 climberEncoderA, 
