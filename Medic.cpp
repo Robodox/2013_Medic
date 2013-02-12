@@ -8,29 +8,31 @@
 #include "MedicMacros.h"
 
 int step;
+//double timerGoal;
 
 class Medic: public IterativeRobot
 {
 	MedicShooter *shooter;
-	MedicDrive *drive;
 	MedicManipulator *manipulator;
 	MedicOperatorInterface *oi;
+	MedicDrive *drive;
 	MedicPIDOutput *pidOutput;
 	Compressor *comp599;
+//	Timer *timer;
 
 public:
 
 	Medic()
 	{
-		drive = new MedicDrive();
 		manipulator = new MedicManipulator();
 		oi = new MedicOperatorInterface();
+		drive = new MedicDrive(oi);
 		shooter = new MedicShooter();
 		pidOutput = new MedicPIDOutput();
-		comp599 = new Compressor(1, 1);//TODO: add real values
+		comp599 = new Compressor(1, 1, 1, 1);//TODO: add real values
 		
 		oi->dashboard->init();
-		comp599->Stop();
+		comp599->Start();
 		
 
 	}
@@ -51,13 +53,14 @@ public:
 		step = 0;
 		drive->leftEncoder->Reset();
 		drive->rightEncoder->Reset();
-		drive->isAtDriveTarget = false;
+		drive->isAtLinearTarget = false;
 	}
 	
 	void TeleopInit()
 	{
-		
-		
+		drive->setLinVelocity(0);
+		drive->setTurnSpeed(0, false);
+		drive->drive();
 	}
    
 	void TestInit()
@@ -70,27 +73,35 @@ public:
 		step = 0;
 		drive->leftEncoder->Reset();
 		drive->rightEncoder->Reset();
-		drive->isAtDriveTarget = false;
+		drive->isAtTimeLinearTarget = false;
 		smartDashboardPrint();
 
 	}
 	
-	//TODO: write auton turn(angle, speed) & drive(distance, speed)
 	void AutonomousPeriodic()
 	{
 		//shoot(true);					//shoot preloads
 		
 		//drive->autoTurn(55, TURN_SPEED); 	
 		smartDashboardPrint();
-		if(step == 0)
+
+	/*	if(step == 1)
 		{
-			drive->autoTurn(24, .75);//TODO: dummy number
-			if(drive->isAtTarget(MedicDrive::turn))
+			drive->autoLinear(24, .5);//TODO: dummy number
+			if(drive->isAtLinearTarget)
 			{
 			drive->resetAtTarget();
 			step++;
 			}
-
+		}
+*/		if(step == 0)
+		{
+			drive->timeLinear(.2, 2000);//TODO: dummy number
+			if(drive->isAtTimeLinearTarget)
+			{
+			  drive->resetAtTarget();
+			  step++;
+			}
 		}
 //		drive->autoTurn(-90, TURN_SPEED); 		
 //		drive->autoDrive(1, DRIVE_SPEED);//TODO: dummy number 		//get the weirdly angled discs OF DOOM
@@ -118,6 +129,7 @@ public:
 	{
 		  oi->dsLCD->Printf(DriverStationLCD::kUser_Line4, 1, "printing works!1 woot");	
 		  oi->dsLCD->UpdateLCD();
+		  comp599->Start();
 		  while(IsOperatorControl())
 		{
 			  //if(oi->readAutoAimToggle())
@@ -139,7 +151,7 @@ public:
 		  oi->dashboard->PutNumber("Left Encoder", drive->leftEncoder->Get());
 		  oi->dashboard->PutNumber("Right Encoder", drive->rightEncoder->Get());
 		}
-	};
+	}
 	
 	void TestPeriodic()
 	{
@@ -265,13 +277,27 @@ public:
 		oi->dashboard->PutNumber("Linear Velocity", drive->getLinVelocity());
 		oi->dashboard->PutNumber("Left Encoder", drive->leftEncoder->Get());
 		oi->dashboard->PutNumber("Right Encoder", drive->rightEncoder->Get());
-		oi->dashboard->PutBoolean("isAtTarget", drive->isAtDriveTarget);
+		oi->dashboard->PutBoolean("isAtTargetD", drive->isAtLinearTarget);
 		oi->dashboard->PutNumber("step", step);
-		oi->dashboard->PutNumber("currentTicks", drive->currentTicks);
-		oi->dashboard->PutNumber("targetTicks", drive->targetTicks);
-		oi->dashboard->PutNumber("deltaTicks", drive->deltaTicks);
-		oi->dashboard->PutNumber("error", drive->error);
-		oi->dashboard->PutNumber("errorDuplicate", drive->error);
+		oi->dashboard->PutNumber("currentTicksD", drive->currentTicksLinear);
+		oi->dashboard->PutNumber("targetTicksD", drive->targetTicksLinear);
+		oi->dashboard->PutNumber("deltaTicksD", drive->deltaTicksLinear);
+		oi->dashboard->PutNumber("errorD", drive->errorLinear);
+		oi->dashboard->PutNumber("errorDuplicateD", drive->errorLinear);
+		
+		oi->dashboard->PutNumber("currentTimeD", drive->currentTimeLinear);
+		oi->dashboard->PutNumber("targetTimeD", drive->targetTimeLinear);
+		oi->dashboard->PutNumber("deltaTimeD", drive->deltaTimeLinear);
+		oi->dashboard->PutNumber("errorTimeD", drive->errorTimeLinear);
+		
+		oi->dashboard->PutNumber("voltage", oi->getBatteryVoltage());
+		
+		oi->dashboard->PutBoolean("isAtTargetT", drive->isAtTurnTarget);
+		oi->dashboard->PutNumber("currentTicksT", drive->currentTicksTurn);
+		oi->dashboard->PutNumber("targetTicksT", drive->targetTicksTurn);
+		oi->dashboard->PutNumber("deltaTicksT", drive->deltaTicksTurn);
+		oi->dashboard->PutNumber("errorT", drive->errorTurn);
+		oi->dashboard->PutNumber("errorDuplicateT", drive->errorTurn);
 	}
 	    		
 };

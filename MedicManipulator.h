@@ -9,10 +9,10 @@ class MedicManipulator
 public:
 	MedicManipulator();
 	MedicManipulator(UINT8 intakeVictorChannel, UINT8 loaderVictorChannel, 
-			         UINT8 conveyerVictorChannel, UINT8 climberVictorChannelA, 
-			         UINT8 climberVictorChannelB, UINT32 climberEncoderA,
-			         UINT32 climberEncoderB, UINT8 pnuemSlot, 
-			         UINT8 feederSolA, UINT8 feederSolB);
+			         UINT8 conveyerVictorChannel, UINT8 climberSolA, 
+			         UINT8 climberSolB, UINT8 pnuemClimberSlot, 
+			         UINT8 pnuemFeederSlot, UINT8 feederSolA, UINT8 feederSolB,
+			         UINT8 anglePotChannel);
 	~MedicManipulator();
 	
 	/*
@@ -38,18 +38,11 @@ public:
 	void loadMagazine(bool load, bool unload);
 	
 	/*
-	 * void climbPyramidA
-	 * Parameters: bool climbA - does the first climbing arm move?
-	 * Summary: Move or stop the first climbing arm.
+	 * void climbPyramid
+	 * Parameters: bool climb - do we start climbing?
+	 * Summary: climbs the pyramid
 	 */
-	void climbPyramidA(bool climbA);
-	
-	/*
-	 * void climbPyramidB
-	 * Parameters: bool climbB - does the second climbing arm move?
-	 * Summary: Move or stop the second climbing arm.
-	 */
-	void climbPyramidB(bool climbB);
+	void climbPyramid(bool climb);
 
 	/*
 	 * void feedShooter
@@ -58,14 +51,17 @@ public:
 	 */
 	void feedShooter(bool feed);
 	
+	void shooterElevationControl(double goal, double speed);
+	double getShooterAngle();
+	
 private:
 	Victor *intakeRoller;
 	Victor *horizontalVerticalConveyer;
 	Victor *loaderRoller;
-	Victor *climberA;
-	Victor *climberB;
-	Encoder *climberEncoder;
+	Victor *elevatorMotor;
+	DoubleSolenoid *climber;
 	DigitalInput *climberSwitch;
 	DoubleSolenoid *feeder;
+	AnalogChannel *anglePot;
 };
 #endif

@@ -2,29 +2,35 @@
 
 MedicShooter::MedicShooter()
 {
-	MedicShooter(SHOOTER_WHEEL_VICTOR_CHANNEL);
+	MedicShooter(SHOOTER_WHEEL_VICTOR_CHANNEL_A, SHOOTER_WHEEL_VICTOR_CHANNEL_B, SHOOTER_WHEEL_IR_CHANNEL);
 }
 
-MedicShooter::MedicShooter(UINT8 shooterWheelVictorChannel)
+MedicShooter::MedicShooter(UINT8 shooterWheelVictorChannelA, UINT8 shooterWheelVictorChannelB, UINT32 shooterWheelIRChannel)
 {
 	shooterEncoder = new Encoder(SHOOTER_ENCODER_CHANNEL_A, SHOOTER_ENCODER_CHANNEL_B, false,Encoder::k1X);
-	shooterWheel = new Victor(shooterWheelVictorChannel);
+	shooterWheelA = new Victor(shooterWheelVictorChannelA);
+	shooterWheelB = new Victor(shooterWheelVictorChannelB);
 	pidOutput = new MedicPIDOutput();
 	rpmSource = new MedicRPMSource(shooterEncoder);
 	pidController = new PIDController(kP, kI, kD, rpmSource, pidOutput, .05);
+	shooterWheelIR = new DigitalInput(shooterWheelIRChannel);
 }
 
 MedicShooter::~MedicShooter()
 {
-	delete shooterWheel;
+	delete shooterWheelA;
+	delete shooterWheelB;
 	delete pidController;
 	delete pidOutput;
 	delete rpmSource;
+	delete shooterWheelIR;
 	
-	shooterWheel = NULL;
+	shooterWheelA = NULL;
+	shooterWheelB = NULL;
 	pidController = NULL;
 	pidOutput = NULL;
 	rpmSource = NULL;
+	shooterWheelIR = NULL;
 }
 
 /*
@@ -74,7 +80,8 @@ void MedicShooter::setVelocity(double input)
  */
 void MedicShooter::setVictors()
 {
-	shooterWheel->Set(targetVelocity, SYNC_STATE_OFF);
+	shooterWheelA->Set(targetVelocity, SYNC_STATE_OFF);
+	shooterWheelB->Set(targetVelocity, SYNC_STATE_OFF);
 }
 
 /*

@@ -4,25 +4,25 @@
 MedicManipulator::MedicManipulator()
 {
 	MedicManipulator(ROLLER_VICTOR_CHANNEL, LOADER_VICTOR_CHANNEL, CONVEYER_VICTOR_CHANNEL,
-					 CLIMBER_VICTOR_CHANNEL_A, CLIMBER_VICTOR_CHANNEL_B,
-					 CLIMBER_ENCODER_A, CLIMBER_ENCODER_B,
-			         PNUEMATICS_FEEDER_SLOT, FEEDER_SOLENOID_CHANNEL_A, FEEDER_SOLENOID_CHANNEL_B);
+					 CLIMBER_SOLENOID_CHANNEL_A, CLIMBER_SOLENOID_CHANNEL_B,
+					 PNUEMATICS_CLIMBER_SLOT, PNUEMATICS_FEEDER_SLOT, 
+			         FEEDER_SOLENOID_CHANNEL_A, FEEDER_SOLENOID_CHANNEL_B,
+			         ANGLE_POT_CHANNEL);
 }
 
 
 MedicManipulator::MedicManipulator(UINT8 intakeVictorChannel, UINT8 loaderVictorChannel, 
-								   UINT8 conveyerVictorChannel, UINT8 climberVictorChannelA, 
-								   UINT8 climberVictorChannelB, UINT32 climberEncoderA, 
-								   UINT32 climberEncoderB, UINT8 pnuemSlot,
-								   UINT8 feederSolA, UINT8 feederSolB)
+								   UINT8 conveyerVictorChannel, UINT8 climberSolA, 
+								   UINT8 climberSolB, UINT8 pnuemClimberSlot, 
+								   UINT8 pnuemFeederSlot, UINT8 feederSolA,
+								   UINT8 feederSolB, UINT8 anglePotChannel)
 {		
 	intakeRoller = new Victor(intakeVictorChannel);
 	horizontalVerticalConveyer = new Victor(conveyerVictorChannel);
 	loaderRoller = new Victor(loaderVictorChannel);
-	climberA = new Victor(climberVictorChannelA);
-	climberB = new Victor(climberVictorChannelB);
-	climberEncoder = new Encoder(climberEncoderA, climberEncoderB, false, Encoder::k1X);
-	feeder = new DoubleSolenoid(pnuemSlot, feederSolA, feederSolB);
+	climber = new DoubleSolenoid(pnuemClimberSlot, climberSolA, climberSolB);
+	feeder = new DoubleSolenoid(pnuemFeederSlot, feederSolA, feederSolB);
+	anglePot = new AnalogChannel(anglePotChannel);
 }
 
 MedicManipulator::~MedicManipulator()
@@ -30,11 +30,13 @@ MedicManipulator::~MedicManipulator()
 	delete intakeRoller;
 	delete horizontalVerticalConveyer;
 	delete loaderRoller;
+	delete climber;
 	delete feeder;
 	
 	intakeRoller = NULL;
 	horizontalVerticalConveyer = NULL;
 	loaderRoller = NULL;
+	climber = NULL;
 	feeder = NULL;
 }
 
@@ -95,38 +97,22 @@ void MedicManipulator::loadMagazine(bool load, bool unload)
 }
 
 /*
- * void climbPyramidA
- * Parameters: bool climbA - does the first climbing arm move?
- * Summary: Move or stop the first climbing arm.
+ * void climbPyramid
+ * Parameters: bool climb - do we start climbing?
+ * Summary: climbs the pyramid.
  */
-void MedicManipulator::climbPyramidA(bool climbA)
+void MedicManipulator::climbPyramid(bool climb)
 {
-	if(climbA)
+	if(climb)
 	{
-		climberA->Set(CLIMBER_A_MOVE, SYNC_STATE_OFF);
+		climber->Set(DoubleSolenoid::kForward);
 	}
 	else
 	{
-		climberA->Set(CLIMBER_A_STOP, SYNC_STATE_OFF);
+		climber->Set(DoubleSolenoid::kReverse);
 	}
 }
 
-/*
- * void climbPyramidB
- * Parameters: bool climbB - does the second climbing arm move?
- * Summary: Move or stop the second climbing arm.
- */
-void MedicManipulator::climbPyramidB(bool climbB)
-{
-	if(climbB)
-	{
-		climberB->Set(CLIMBER_B_MOVE, SYNC_STATE_OFF);
-	}
-	else
-	{
-		climberB->Set(CLIMBER_B_STOP, SYNC_STATE_OFF);
-	}
-}
 
 /*
  * void feedShooter
@@ -143,4 +129,42 @@ void MedicManipulator::feedShooter(bool feed)
 	{
 		feeder->Set(DoubleSolenoid::kReverse);
 	}
+}
+
+void MedicManipulator::shooterElevationControl(double goal, double speed = ELEVATION_SPEED)
+{
+	//Make function use boolean value to either go up or down at a certain rate from
+	//joystick button used as source of boolean
+	static double error = 0;
+	double motorSpeed = 0;
+	double angle = 0;
+	angle = getShooterAngle();
+	error = goal - angle;
+
+    if(error < -ELEVATION_DEADZONE)
+	{
+    	motorSpeed = speed;
+	}
+	else if(error > ELEVATION_DEADZONE) 
+	{
+		motorSpeed = -speed;
+	}
+	else 
+	{
+		motorSpeed = 0;
+	}
+	
+    if (angle > SHOOTER_MAX_ELEVATION && motorSpeed > 0)
+	{
+		motorSpeed = 0;
+	}
+	else if (angle < SHOOTER_MIN_ELEVATION && motorSpeed < 0)
+	{
+		motorSpeed = 0;
+	}
+    elevatorMotor->Set(motorSpeed, SYNC_STATE_OFF);//In Deadzone(0)	
+}
+double MedicManipulator::getShooterAngle()
+{
+  return 0;//TODO:Read Analog Pot	
 }

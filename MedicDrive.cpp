@@ -1,18 +1,47 @@
 #include "MedicDrive.h"
 
-MedicDrive::MedicDrive()
+MedicDrive::MedicDrive(MedicOperatorInterface *opInt)
 {
+	if(opInt) oi = opInt;
 	linearVelocity = 0;
 	turnSpeed = 0;
-	isAtDriveTarget = false;
-	isAtTurnTarget = false;
-	
-	currentTicks = 0; //average of encoder values; used in auton
-	targetTicks = 0;  //target encoder values; used in auton
-	deltaTicks = 0;   //change in encoder values; used in auton
-	error = 0;        //the offset of target ticks relative to current ticks; used in auton
 
-	shifter = new DoubleSolenoid(1, 2, 3); //PNEUMATICS_BUMPER_SLOT, SHIFTER_SOLENOID_CHANNEL_A, SHIFTER_SOLENOID_CHANNEL_B
+	isAtLeftTarget = false;
+	isAtRightTarget = false;
+	isAtLinearTarget = false;
+	isAtTurnTarget = false;
+	isAtSwivelTurnTarget = false;
+	
+	isAtTimeLinearTarget = false;
+	isAtTimeTurnTarget = false;
+	isAtTimeSwivelTarget = false;
+	
+	currentTicksLeft = 0;//average of encoder values; used in auton
+	targetTicksLeft = 0;  //target encoder values; used in auton
+	deltaTicksLeft = 0;   //change in encoder values; used in auton
+	errorLeft = 0;        //the offset of target ticks relative to current ticks; used in auton
+	
+	currentTicksRight = 0; //average of encoder values; used in auton
+	targetTicksRight = 0;  //target encoder values; used in auton
+	deltaTicksRight = 0;   //change in encoder values; used in auton
+	errorRight = 0;        //the offset of target ticks relative to current ticks; used in auton
+	
+	currentTicksLinear = 0; //average of encoder values; used in auton
+	targetTicksLinear = 0;  //target encoder values; used in auton
+	deltaTicksLinear = 0;   //change in encoder values; used in auton
+	errorLinear = 0;        //the offset of target ticks relative to current ticks; used in auton
+
+	currentTicksTurn = 0; //average of encoder values; used in auton
+	targetTicksTurn = 0;  //target encoder values; used in auton
+	deltaTicksTurn = 0;   //change in encoder values; used in auton
+	errorTurn = 0;        //the offset of target ticks relative to current ticks; used in auton
+
+	currentTicksSwivelTurn = 0; //average of encoder values; used in auton
+	targetTicksSwivelTurn = 0;  //target encoder values; used in auton
+	deltaTicksSwivelTurn = 0;   //change in encoder values; used in auton
+	errorSwivelTurn = 0;        //the offset of target ticks relative to current ticks; used in auton
+
+	shifter = new DoubleSolenoid(1, 1, 6); //PNEUMATICS_BUMPER_SLOT, SHIFTER_SOLENOID_CHANNEL_A, SHIFTER_SOLENOID_CHANNEL_B
 	shifter->Set(DoubleSolenoid::kReverse);
 																
 	frontLeftMotor = new Jaguar(1, DRIVE_FRONT_LEFT_MOTOR_CHANNEL);   //TODO: Talon
@@ -22,7 +51,23 @@ MedicDrive::MedicDrive()
 	leftEncoder = new Encoder(LEFT_DRIVE_ENCODER_CHANNEL_A, LEFT_DRIVE_ENCODER_CHANNEL_B, true, Encoder::k1X);
 	rightEncoder = new Encoder(RIGHT_DRIVE_ENCODER_CHANNEL_A, RIGHT_DRIVE_ENCODER_CHANNEL_B, false, Encoder::k1X);
 	
-
+	timer = new Timer();
+	
+	currentTimeLinear = 0;
+	targetTimeLinear = 0;
+	deltaTimeLinear = 0;
+	errorTimeLinear = 0;
+	
+	currentTimeTurn = 0;
+	targetTimeTurn = 0;
+	deltaTimeTurn = 0;
+	errorTimeTurn = 0;
+	
+	currentTimeSwivel = 0;
+	targetTimeSwivel = 0;
+	deltaTimeSwivel = 0;
+	errorTimeSwivel = 0;
+	
 }
 
 MedicDrive::~MedicDrive()
@@ -32,12 +77,14 @@ MedicDrive::~MedicDrive()
 	 delete rearLeftMotor;
 	 delete frontRightMotor;
 	 delete rearRightMotor;
+	 delete timer;
 	 
 	 shifter = NULL;
 	 frontLeftMotor = NULL;
 	 rearLeftMotor = NULL;
 	 frontRightMotor = NULL;
 	 rearRightMotor = NULL;
+	 timer = NULL;
 }
 
 /*
@@ -113,7 +160,7 @@ void MedicDrive::setTurnSpeed(double turn, bool turboButton)
 	{
 		turnSpeed = turn * REDUCTION;
 	}
-	if(turn< .1 && turn > -.1) //DEADZONE
+	if(turn < .1 && turn > -.1) //DEADZONE
 	{
 		turnSpeed = 0; //NEUTRAL;
 	}
@@ -128,6 +175,19 @@ double MedicDrive::getTurnSpeed()
 	return turnSpeed;
 }
 
+void MedicDrive::setLeftMotors(double velocity)
+{
+	frontLeftMotor->Set(-velocity, SYNC_STATE_OFF);
+	rearLeftMotor->Set(-velocity, SYNC_STATE_OFF);
+		
+}
+
+void MedicDrive::setRightMotors(double velocity)
+{
+	frontRightMotor->Set(velocity, SYNC_STATE_OFF); 
+	rearRightMotor->Set(velocity, SYNC_STATE_OFF); 
+}
+
 /*
  * void drive
  * Parameters: N/A
@@ -135,127 +195,205 @@ double MedicDrive::getTurnSpeed()
  */
 void MedicDrive::drive()
 {
-	frontLeftCmd = linearVelocity + turnSpeed;
-	rearLeftCmd = linearVelocity + turnSpeed;
-	frontRightCmd = linearVelocity - turnSpeed;
-	rearRightCmd = linearVelocity - turnSpeed;
+	leftCmd = linearVelocity + turnSpeed;
+	rightCmd = linearVelocity - turnSpeed;
 	
-	frontLeftMotor->Set(-frontLeftCmd, SYNC_STATE_OFF);
-	rearLeftMotor->Set(-rearLeftCmd, SYNC_STATE_OFF);
-	frontRightMotor->Set(frontRightCmd, SYNC_STATE_OFF); 
-	rearRightMotor->Set(rearRightCmd, SYNC_STATE_OFF); 
+	setLeftMotors(leftCmd);
+	setRightMotors(rightCmd);
 }
 
-void MedicDrive::autoDrive(double target, double speed)
+void MedicDrive::moveLeftEncoder(double target, double speed)
 {
 	static bool init = true;
 	static double initTicks = 0;
 	
-	currentTicks = (leftEncoder->Get() + rightEncoder->Get()) / 2;
+	currentTicksLeft = leftEncoder->Get();
 	
 	if(init)
 	{
-		initTicks = currentTicks;	
-		targetTicks = target / INCHES_PER_TICK;
+		initTicks = currentTicksLeft;
+		targetTicksLeft = target;
 		init = false;
 	}
 	else
-	{	
-		deltaTicks = currentTicks - initTicks;
-		error = targetTicks - deltaTicks;
-		if(error < 0 - AUTO_DRIVE_DEADZONE / INCHES_PER_TICK)
+	{
+		deltaTicksLeft = currentTicksLeft - initTicks;
+		errorLeft = targetTicksLeft - deltaTicksLeft;
+		if(errorLeft < 0 - TICKS_DEADZONE)
 		{
-			setLinVelocity(-speed);
-			isAtDriveTarget = false;
+			setLeftMotors(speed);
+			isAtLeftTarget = false;
 		}
-		else if(error > 0 + AUTO_DRIVE_DEADZONE / INCHES_PER_TICK)
+		else if(errorRight > 0 + TICKS_DEADZONE)
 		{
-			setLinVelocity(speed);
-			isAtDriveTarget = false;
+			setLeftMotors(-speed);
+			isAtLeftTarget = false;
 		}
 		else
 		{
-			setLinVelocity(0);
-			isAtDriveTarget = true;
+			setLeftMotors(0);
 			init = true;
+			isAtLeftTarget = true;
 		}
-		drive();
+		if(isAtLeftTarget)
+		{
+			setLeftMotors(0);
+		}
 	}
+	
+}
+
+void MedicDrive::moveRightEncoder(double target, double speed)
+{
+	static bool init = true;
+	static double initTicks = 0;
+	
+	currentTicksRight = rightEncoder->Get();
+	
+	if(init)
+	{
+		initTicks = currentTicksRight;
+		targetTicksRight = target;
+		init = false;
+	}
+	else
+	{
+		deltaTicksRight = currentTicksRight - initTicks;
+		errorRight = targetTicksRight - deltaTicksRight;
+		if(errorRight < 0 - TICKS_DEADZONE)
+		{
+			setRightMotors(speed);
+			isAtRightTarget = false;
+		}
+		else if(errorRight > 0 + TICKS_DEADZONE)
+		{
+			setRightMotors(-speed);
+			isAtRightTarget = false;
+		}
+		else
+		{
+			setRightMotors(0);
+			init = true;
+			isAtRightTarget = true;
+		}
+		if(isAtRightTarget)
+		{
+			setRightMotors(0);
+		}
+	}
+	
+}
+
+void MedicDrive::autoLinear(double target, double speed)
+{
+		targetTicksLinear = target / INCHES_PER_TICK;
+		moveLeftEncoder(-targetTicksLinear, speed);
+		moveRightEncoder(targetTicksLinear, -speed);
+		if(!isAtLeftTarget && !isAtRightTarget)
+		{
+			isAtLinearTarget = false;
+		}
+		else
+		{
+			isAtLinearTarget = true;
+			setLeftMotors(0);
+			setRightMotors(0);
+		}
+		
+
 }
 void MedicDrive::autoTurn(double target, double speed)
 {
+		targetTicksTurn = target * TICKS_PER_DEGREE;
+		moveLeftEncoder(targetTicksTurn, -speed);
+		moveRightEncoder(-targetTicksTurn, -speed);
+		if(!isAtLeftTarget && !isAtRightTarget)
+		{
+			isAtTurnTarget = false;
+		}
+		else
+		{
+			isAtTurnTarget = true;
+			setLeftMotors(0);
+			setRightMotors(0);
+		}
+}
+
+void MedicDrive::timeLinear(double speed, double targetTime_ms)
+{
 	static bool init = true;
-	static double initTicks = 0;
-	static double currentTicks = 0;
-	static double deltaTicks = 0;
-	static double targetTicks = 0;	
-	static double error = 0;
+	static double initTime = 0;
 	
+	currentTimeLinear = timer->Get() * 1000; //convert to milliseconds
+		
 	if(init)
 	{
-		initTicks = leftEncoder->Get() - rightEncoder->Get();
-		targetTicks = target / TICKS_PER_DEGREE;
+		initTime = currentTimeLinear;
+		targetTimeLinear = targetTime_ms;	
+		timer->Start();
 		init = false;
 	}
 	else
 	{
-		currentTicks = leftEncoder->Get() - rightEncoder->Get();
-		deltaTicks = currentTicks - initTicks;
-		error = targetTicks - deltaTicks;
-		if(error < 0 - AUTO_TURN_DEADZONE / TICKS_PER_DEGREE)
+		deltaTimeLinear = currentTimeLinear - initTime;
+		errorTimeLinear = targetTimeLinear - deltaTimeLinear;
+		
+		if(errorTimeLinear > 0)
 		{
-			setTurnSpeed(-speed, false);
-			isAtTurnTarget = false;
-
+			setRightMotors(speed * BATTERY_COMPENSATION);
+			setLeftMotors(speed * BATTERY_COMPENSATION);
+			isAtTimeLinearTarget = false;
 		}
-		else if(error > 0 + AUTO_TURN_DEADZONE / TICKS_PER_DEGREE)
+		else if(errorTimeLinear <= 0)
 		{
-			setTurnSpeed(speed, false);
-			isAtTurnTarget = false;
+			timer->Stop();
+			setRightMotors(0);
+			setLeftMotors(0);
+			//resetTimers();
+			isAtTimeLinearTarget = true;
 		}
-		else
-		{
-			setTurnSpeed(0, false);
-			isAtTurnTarget = true;
-			init = true;
-		}
-		drive();
+		
 	}
 }
-bool MedicDrive::isAtTarget(autoFunctions functionType)
+
+void MedicDrive::timeTurn(double speed, double targetTime_ms)
 {
-	if(functionType == linear)
-	{
-		if(isAtDriveTarget)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else if(functionType == turn)
-	{
-		if(isAtTurnTarget)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
+	
+}
+
+void MedicDrive::timeLinear(double distance, double speed, double targetTime_ms)
+{
+	
+}
+
+void MedicDrive::timeTurn(double distance, double speed, double targetTime_ms)
+{
+	
 }
 
 void MedicDrive::resetAtTarget()
 {
-	isAtDriveTarget = false;
+	isAtLeftTarget = false;
+	isAtRightTarget = false;
+	isAtLinearTarget = false;
 	isAtTurnTarget = false;
+	isAtSwivelTurnTarget = false;
+	isAtTimeLinearTarget = false;
+	isAtTimeTurnTarget = false;
+	isAtTimeSwivelTarget = false;
+}
+
+void MedicDrive::resetTimers()
+{
+	currentTimeLinear = 0;
+	targetTimeLinear = 0;
+	deltaTimeLinear = 0;
+	errorTimeLinear = 0;
+	
+	currentTimeTurn = 0;
+	targetTimeTurn = 0;
+	deltaTimeTurn = 0;
+	errorTimeTurn = 0;
 }
 
 /*
