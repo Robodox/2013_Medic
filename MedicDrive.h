@@ -2,13 +2,12 @@
 #define MEDIC_DRIVE_H
 #include "WPILib.h"
 #include "MedicMacros.h"
-#include "MedicOperatorInterface.h"
+
 
 class MedicDrive
 {
 public:
-	MedicDrive(MedicOperatorInterface *opInt = NULL);
-	//MedicDrive();
+	MedicDrive();
 	~MedicDrive();
 
 	/*
@@ -60,96 +59,38 @@ public:
 	 * Summary: Reduces the turning speed.
 	 */
 	double reduceTurn(double reduceBy);
-	
-	void setLeftMotors(double velocity);
-	void setRightMotors(double velocity);
-	
-	void moveLeftEncoder(double target, double speed);
-	void moveRightEncoder(double target, double speed);
-	
-	void autoLinear(double target, double speed);
+	void autoDrive(double target, double speed);
 	void autoTurn(double target, double speed);
-	void autoSwivelTurn(double target, double speed, bool leftSide);
 	
-	void timeLinear(double distance, double speed, double targetTime_ms);
-	void timeTurn(double distance, double speed, double targetTime_ms);
-	void timeSwivel(double distance, double speed, double targetTime_ms);
-	
-	void timeLinear(double speed, double targetTime_ms);
-	void timeTurn(double speed, double targetTime_ms);
-	void timeSwivel(double speed, double targetTime_ms);
+	enum autoFunctions{ linear, turn }functions;
+	bool isAtTarget(autoFunctions functionType);	
 	
 	void resetAtTarget();
-	void resetTimers();
 	
 	DoubleSolenoid *shifter;
 
 	Encoder *leftEncoder;
 	Encoder *rightEncoder;
-	double currentTicksLeft ; //average of encoder values; used in auton
-	double targetTicksLeft;  //target encoder values; used in auton
-	double deltaTicksLeft;   //change in encoder values; used in auton
-	double errorLeft;        //the offset of target ticks relative to current ticks; used in auton
-	
-	double currentTicksRight; //average of encoder values; used in auton
-	double targetTicksRight;  //target encoder values; used in auton
-	double deltaTicksRight;   //change in encoder values; used in auton
-	double errorRight;        //the offset of target ticks relative to current ticks; used in auton
-	
-	double currentTicksLinear ; //average of encoder values; used in auton
-	double targetTicksLinear;  //target encoder values; used in auton
-	double deltaTicksLinear;   //change in encoder values; used in auton
-	double errorLinear;        //the offset of target ticks relative to current ticks; used in auton
+	double currentTicks ; //average of encoder values; used in auton
+		double targetTicks;  //target encoder values; used in auton
+		double deltaTicks;   //change in encoder values; used in auton
+		double error;        //the offset of target ticks relative to current ticks; used in auton
 
-	double currentTicksTurn; //average of encoder values; used in auton
-	double targetTicksTurn;  //target encoder values; used in auton
-	double deltaTicksTurn;   //change in encoder values; used in auton
-	double errorTurn;        //the offset of target ticks relative to current ticks; used in auton
-
-	double currentTicksSwivelTurn; //average of encoder values; used in auton
-	double targetTicksSwivelTurn;  //target encoder values; used in auton
-	double deltaTicksSwivelTurn;   //change in encoder values; used in auton
-	double errorSwivelTurn;        //the offset of target ticks relative to current ticks; used in auton
-	
-	Timer *timer;
-	
-	double currentTimeLinear;
-	double targetTimeLinear;
-	double deltaTimeLinear;
-	double errorTimeLinear;
-	
-	double currentTimeTurn;
-	double targetTimeTurn;
-	double deltaTimeTurn;
-	double errorTimeTurn;
-	
-	double currentTimeSwivel;
-	double targetTimeSwivel;
-	double deltaTimeSwivel;
-	double errorTimeSwivel;
-	
-	bool isAtLeftTarget;
-	bool isAtRightTarget;
-	bool isAtLinearTarget;
-	bool isAtTurnTarget;
-	bool isAtSwivelTurnTarget;
-	
-	bool isAtTimeLinearTarget;
-	bool isAtTimeTurnTarget;
-	bool isAtTimeSwivelTarget;
-	
+		bool isAtDriveTarget;
+		bool isAtTurnTarget;
 private:	
 	Jaguar *frontLeftMotor; //TODO: Talon
 	Jaguar *rearLeftMotor;//TODO: Talon
 	Jaguar *frontRightMotor;//TODO: Talon
 	Jaguar *rearRightMotor;//TODO: Talon
-	MedicOperatorInterface *oi;
 	
 	double linearVelocity; 
 	double turnSpeed; 
 	
-	double leftCmd;
-	double rightCmd;
+	double frontLeftCmd;
+	double rearLeftCmd;
+	double frontRightCmd;
+	double rearRightCmd;
 	
 };
 #endif

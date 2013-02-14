@@ -66,7 +66,7 @@ public:
 	double readTargetCenterX();
 	double readTargetCenterY();
 	bool readAutoAimToggle();
-	float getBatteryVoltage();
+	
 	
 	DriverStationLCD *dsLCD;
 	SmartDashboard *dashboard;

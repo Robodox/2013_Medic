@@ -3,6 +3,7 @@
 
 MedicManipulator::MedicManipulator()
 {
+<<<<<<< HEAD
 	MedicManipulator(INTAKE_ROLLER_VICTOR_CHANNEL, ELEVATOR_VICTOR_CHANNEL, CONVEYER_VICTOR_CHANNEL,
 					 CLIMBER_SOLENOID_CHANNEL_A, CLIMBER_SOLENOID_CHANNEL_B,
 					 PNUEMATICS_CLIMBER_SLOT, PNUEMATICS_FEEDER_SLOT, 
@@ -16,13 +17,35 @@ MedicManipulator::MedicManipulator(UINT8 intakeRollerVictorChannel, UINT8 elevat
 								   UINT8 climberSolB, UINT8 pnuemClimberSlot, 
 								   UINT8 pnuemFeederSlot, UINT8 feederSolA,
 								   UINT8 feederSolB, UINT8 anglePotChannel)
+=======
+	MedicManipulator(ROLLER_VICTOR_CHANNEL, LOADER_VICTOR_CHANNEL, CONVEYER_VICTOR_CHANNEL,
+					 CLIMBER_VICTOR_CHANNEL_A, CLIMBER_VICTOR_CHANNEL_B,
+					 CLIMBER_ENCODER_A, CLIMBER_ENCODER_B,
+			         PNUEMATICS_FEEDER_SLOT, FEEDER_SOLENOID_CHANNEL_A, FEEDER_SOLENOID_CHANNEL_B);
+}
+
+
+MedicManipulator::MedicManipulator(UINT8 intakeVictorChannel, UINT8 loaderVictorChannel, 
+								   UINT8 conveyerVictorChannel, UINT8 climberVictorChannelA, 
+								   UINT8 climberVictorChannelB, UINT32 climberEncoderA, 
+								   UINT32 climberEncoderB, UINT8 pnuemSlot,
+								   UINT8 feederSolA, UINT8 feederSolB)
+>>>>>>> parent of 3678615... Elevation function worked on
 {		
 	intakeRoller = new Victor(intakeRollerVictorChannel);
 	elevatorMotor = new Victor(elevatorVictorChannel);
 	horizontalVerticalConveyer = new Victor(conveyerVictorChannel);
+<<<<<<< HEAD
 	climber = new DoubleSolenoid(pnuemClimberSlot, climberSolA, climberSolB);
 	feeder = new DoubleSolenoid(pnuemFeederSlot, feederSolA, feederSolB);
 	anglePot = new AnalogChannel(anglePotChannel);
+=======
+	loaderRoller = new Victor(loaderVictorChannel);
+	climberA = new Victor(climberVictorChannelA);
+	climberB = new Victor(climberVictorChannelB);
+	climberEncoder = new Encoder(climberEncoderA, climberEncoderB, false, Encoder::k1X);
+	feeder = new DoubleSolenoid(pnuemSlot, feederSolA, feederSolB);
+>>>>>>> parent of 3678615... Elevation function worked on
 }
 
 MedicManipulator::~MedicManipulator()
@@ -30,13 +53,21 @@ MedicManipulator::~MedicManipulator()
 	delete intakeRoller;
 	delete elevatorMotor;
 	delete horizontalVerticalConveyer;
+<<<<<<< HEAD
 	delete climber;
+=======
+	delete loaderRoller;
+>>>>>>> parent of 3678615... Elevation function worked on
 	delete feeder;
 	
 	intakeRoller = NULL;
 	elevatorMotor = NULL;
 	horizontalVerticalConveyer = NULL;
+<<<<<<< HEAD
 	climber = NULL;
+=======
+	loaderRoller = NULL;
+>>>>>>> parent of 3678615... Elevation function worked on
 	feeder = NULL;
 }
 
@@ -76,22 +107,38 @@ void MedicManipulator::conveyer(bool move)
 
 
 /*
- * void climbPyramid
- * Parameters: bool climb - do we start climbing?
- * Summary: climbs the pyramid.
+ * void climbPyramidA
+ * Parameters: bool climbA - does the first climbing arm move?
+ * Summary: Move or stop the first climbing arm.
  */
-void MedicManipulator::climbPyramid(bool climb)
+void MedicManipulator::climbPyramidA(bool climbA)
 {
-	if(climb)
+	if(climbA)
 	{
-		climber->Set(DoubleSolenoid::kForward);
+		climberA->Set(CLIMBER_A_MOVE, SYNC_STATE_OFF);
 	}
 	else
 	{
-		climber->Set(DoubleSolenoid::kReverse);
+		climberA->Set(CLIMBER_A_STOP, SYNC_STATE_OFF);
 	}
 }
 
+/*
+ * void climbPyramidB
+ * Parameters: bool climbB - does the second climbing arm move?
+ * Summary: Move or stop the second climbing arm.
+ */
+void MedicManipulator::climbPyramidB(bool climbB)
+{
+	if(climbB)
+	{
+		climberB->Set(CLIMBER_B_MOVE, SYNC_STATE_OFF);
+	}
+	else
+	{
+		climberB->Set(CLIMBER_B_STOP, SYNC_STATE_OFF);
+	}
+}
 
 /*
  * void feedShooter
@@ -109,6 +156,7 @@ void MedicManipulator::feedShooter(bool feed)
 		feeder->Set(DoubleSolenoid::kReverse);
 	}
 }
+<<<<<<< HEAD
 
 void MedicManipulator::shooterElevationControl(double goal, double speed = ELEVATION_SPEED)
 {
@@ -150,3 +198,5 @@ float MedicManipulator::getShooterAngle()
   return anglePot->GetVoltage();// * SHOOTER_POT_DEGREES_PER_VOLT;
 }
 
+=======
+>>>>>>> parent of 3678615... Elevation function worked on

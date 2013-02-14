@@ -139,9 +139,3 @@ bool MedicOperatorInterface::readAutoAimToggle()
 		return false;
 	}
 }
-
-float MedicOperatorInterface::getBatteryVoltage()
-{
-	return DriverStation::GetInstance()->GetBatteryVoltage();
-	//return 0.0;
-}

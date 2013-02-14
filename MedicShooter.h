@@ -9,7 +9,7 @@ class MedicShooter
 {
 public:
 	MedicShooter();
-	MedicShooter(UINT8 shooterWheelVictorChannelA, UINT8 shooterWheelVictorChannelB, UINT32 shooterWheelIRChannel);
+	MedicShooter(UINT8 shooterWheelVictorChannel);
 	~MedicShooter();
 	
 	/*
@@ -55,11 +55,9 @@ public:
 	void setTarget(double rpm);
 	MedicPIDOutput *pidOutput;
 private:	
-	Victor *shooterWheelA;
-	Victor *shooterWheelB;
+	Victor *shooterWheel;
 	PIDController *pidController;
-	
-	DigitalInput *shooterWheelIR;
+
 	MedicRPMSource *rpmSource;
 	Encoder *shooterEncoder;
 	double targetVelocity;

@@ -2,34 +2,34 @@
 
 MedicShooter::MedicShooter()
 {
-	MedicShooter(SHOOTER_WHEEL_VICTOR_CHANNEL_A, SHOOTER_WHEEL_VICTOR_CHANNEL_B, SHOOTER_WHEEL_IR_CHANNEL);
+	MedicShooter(SHOOTER_WHEEL_VICTOR_CHANNEL);
 }
 
-MedicShooter::MedicShooter(UINT8 shooterWheelVictorChannelA, UINT8 shooterWheelVictorChannelB, UINT32 shooterWheelIRChannel)
+MedicShooter::MedicShooter(UINT8 shooterWheelVictorChannel)
 {
+<<<<<<< HEAD
 	shooterWheelA = new Victor(shooterWheelVictorChannelA);
 	shooterWheelB = new Victor(shooterWheelVictorChannelB);
+=======
+	shooterEncoder = new Encoder(SHOOTER_ENCODER_CHANNEL_A, SHOOTER_ENCODER_CHANNEL_B, false,Encoder::k1X);
+	shooterWheel = new Victor(shooterWheelVictorChannel);
+>>>>>>> parent of 3678615... Elevation function worked on
 	pidOutput = new MedicPIDOutput();
 	rpmSource = new MedicRPMSource(shooterEncoder);
 	pidController = new PIDController(kP, kI, kD, rpmSource, pidOutput, .05);
-	shooterWheelIR = new DigitalInput(shooterWheelIRChannel);
 }
 
 MedicShooter::~MedicShooter()
 {
-	delete shooterWheelA;
-	delete shooterWheelB;
+	delete shooterWheel;
 	delete pidController;
 	delete pidOutput;
 	delete rpmSource;
-	delete shooterWheelIR;
 	
-	shooterWheelA = NULL;
-	shooterWheelB = NULL;
+	shooterWheel = NULL;
 	pidController = NULL;
 	pidOutput = NULL;
 	rpmSource = NULL;
-	shooterWheelIR = NULL;
 }
 
 /*
@@ -79,8 +79,12 @@ void MedicShooter::setVelocity(double input)
  */
 void MedicShooter::setVictors()
 {
+<<<<<<< HEAD
 	shooterWheelA->Set(targetVelocity, SYNC_STATE_OFF);//big one
 	shooterWheelB->Set(FULL_SPEED, SYNC_STATE_OFF);//little one
+=======
+	shooterWheel->Set(targetVelocity, SYNC_STATE_OFF);
+>>>>>>> parent of 3678615... Elevation function worked on
 }
 
 /*
