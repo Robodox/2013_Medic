@@ -7,7 +7,6 @@ MedicShooter::MedicShooter()
 
 MedicShooter::MedicShooter(UINT8 shooterWheelVictorChannelA, UINT8 shooterWheelVictorChannelB, UINT32 shooterWheelIRChannel)
 {
-	shooterEncoder = new Encoder(SHOOTER_ENCODER_CHANNEL_A, SHOOTER_ENCODER_CHANNEL_B, false,Encoder::k1X);
 	shooterWheelA = new Victor(shooterWheelVictorChannelA);
 	shooterWheelB = new Victor(shooterWheelVictorChannelB);
 	pidOutput = new MedicPIDOutput();
@@ -80,8 +79,8 @@ void MedicShooter::setVelocity(double input)
  */
 void MedicShooter::setVictors()
 {
-	shooterWheelA->Set(targetVelocity, SYNC_STATE_OFF);
-	shooterWheelB->Set(targetVelocity, SYNC_STATE_OFF);
+	shooterWheelA->Set(targetVelocity, SYNC_STATE_OFF);//big one
+	shooterWheelB->Set(FULL_SPEED, SYNC_STATE_OFF);//little one
 }
 
 /*

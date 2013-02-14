@@ -187,14 +187,12 @@ public:
 		if(oi->getManipJoystickButton(1) == 1)//TODO: Macro goes here
 		{
 			manipulator->intakeDisc(true); // intake
-			manipulator->conveyer(true); // move
-			manipulator->loadMagazine(true, false); // load, unload			
+			manipulator->conveyer(true); // move		
 		}
 		else
 		{
 			manipulator->intakeDisc(false); // intake
 			manipulator->conveyer(false); // move
-			manipulator->loadMagazine(false, true); // load, unload
 		}
 
 	}	
@@ -204,14 +202,12 @@ public:
 		if(autonIntake)
 		{
 			manipulator->intakeDisc(true); // intake
-			manipulator->conveyer(true); // move
-			manipulator->loadMagazine(true, false); // load, unload			
+			manipulator->conveyer(true); // move	
 		}
 		else
 		{
 			manipulator->intakeDisc(false); // intake
 			manipulator->conveyer(false); // move
-			manipulator->loadMagazine(false, true); // load, unload
 		}
 	
 	}	
@@ -290,7 +286,8 @@ public:
 		oi->dashboard->PutNumber("deltaTimeD", drive->deltaTimeLinear);
 		oi->dashboard->PutNumber("errorTimeD", drive->errorTimeLinear);
 		
-		oi->dashboard->PutNumber("voltage", oi->getBatteryVoltage());
+		oi->dashboard->PutNumber("Battery_Voltage", oi->getBatteryVoltage());
+		//oi->dashboard->PutNumber("POT_Voltage", manipulator->getShooterAngle());
 		
 		oi->dashboard->PutBoolean("isAtTargetT", drive->isAtTurnTarget);
 		oi->dashboard->PutNumber("currentTicksT", drive->currentTicksTurn);

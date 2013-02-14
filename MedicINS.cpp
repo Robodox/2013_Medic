@@ -5,7 +5,7 @@ MedicINS::MedicINS()
     //ds_lcd = DriverStationLCD::GetInstance();
     
 	gyroINS = new Gyro(ANALOG_BUMPER_SLOT, GYRO_CHANNEL);
-	I2CAccelerometer = new ADXL345_I2C(DIGITAL_SIDECAR_SLOT_4);
+	I2CAccelerometer = new ADXL345_I2C(DIGITAL_SIDECAR_SLOT_2);
 	driveBase = new MedicDrive();
 	//encoder_left = new Encoder(DIGITAL_SIDECAR_SLOT_4, DRIVE_ENCODER_LEFT_CH_A, 
     //                                      DIGITAL_SIDECAR_SLOT_4, DRIVE_ENCODER_LEFT_CH_B, CounterBase::k1X);

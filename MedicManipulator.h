@@ -8,7 +8,7 @@ class MedicManipulator
 {
 public:
 	MedicManipulator();
-	MedicManipulator(UINT8 intakeVictorChannel, UINT8 loaderVictorChannel, 
+	MedicManipulator(UINT8 intakeRollerVictorChannel, UINT8 elevatorVictorChannel, 
 			         UINT8 conveyerVictorChannel, UINT8 climberSolA, 
 			         UINT8 climberSolB, UINT8 pnuemClimberSlot, 
 			         UINT8 pnuemFeederSlot, UINT8 feederSolA, UINT8 feederSolB,
@@ -30,14 +30,6 @@ public:
 	void conveyer(bool move);
 	
 	/*
-	 * void loadMagazine
-	 * Parameters: bool load - do we load the mag? 
-	 * 			   bool unload - do we unload the mag?
-	 * Summary: Loads and unloads the Magazine.
-	 */
-	void loadMagazine(bool load, bool unload);
-	
-	/*
 	 * void climbPyramid
 	 * Parameters: bool climb - do we start climbing?
 	 * Summary: climbs the pyramid
@@ -52,12 +44,12 @@ public:
 	void feedShooter(bool feed);
 	
 	void shooterElevationControl(double goal, double speed);
-	double getShooterAngle();
+	
+	float getShooterAngle();
 	
 private:
 	Victor *intakeRoller;
 	Victor *horizontalVerticalConveyer;
-	Victor *loaderRoller;
 	Victor *elevatorMotor;
 	DoubleSolenoid *climber;
 	DigitalInput *climberSwitch;

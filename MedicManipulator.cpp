@@ -3,7 +3,7 @@
 
 MedicManipulator::MedicManipulator()
 {
-	MedicManipulator(ROLLER_VICTOR_CHANNEL, LOADER_VICTOR_CHANNEL, CONVEYER_VICTOR_CHANNEL,
+	MedicManipulator(INTAKE_ROLLER_VICTOR_CHANNEL, ELEVATOR_VICTOR_CHANNEL, CONVEYER_VICTOR_CHANNEL,
 					 CLIMBER_SOLENOID_CHANNEL_A, CLIMBER_SOLENOID_CHANNEL_B,
 					 PNUEMATICS_CLIMBER_SLOT, PNUEMATICS_FEEDER_SLOT, 
 			         FEEDER_SOLENOID_CHANNEL_A, FEEDER_SOLENOID_CHANNEL_B,
@@ -11,15 +11,15 @@ MedicManipulator::MedicManipulator()
 }
 
 
-MedicManipulator::MedicManipulator(UINT8 intakeVictorChannel, UINT8 loaderVictorChannel, 
+MedicManipulator::MedicManipulator(UINT8 intakeRollerVictorChannel, UINT8 elevatorVictorChannel,
 								   UINT8 conveyerVictorChannel, UINT8 climberSolA, 
 								   UINT8 climberSolB, UINT8 pnuemClimberSlot, 
 								   UINT8 pnuemFeederSlot, UINT8 feederSolA,
 								   UINT8 feederSolB, UINT8 anglePotChannel)
 {		
-	intakeRoller = new Victor(intakeVictorChannel);
+	intakeRoller = new Victor(intakeRollerVictorChannel);
+	elevatorMotor = new Victor(elevatorVictorChannel);
 	horizontalVerticalConveyer = new Victor(conveyerVictorChannel);
-	loaderRoller = new Victor(loaderVictorChannel);
 	climber = new DoubleSolenoid(pnuemClimberSlot, climberSolA, climberSolB);
 	feeder = new DoubleSolenoid(pnuemFeederSlot, feederSolA, feederSolB);
 	anglePot = new AnalogChannel(anglePotChannel);
@@ -28,14 +28,14 @@ MedicManipulator::MedicManipulator(UINT8 intakeVictorChannel, UINT8 loaderVictor
 MedicManipulator::~MedicManipulator()
 {	
 	delete intakeRoller;
+	delete elevatorMotor;
 	delete horizontalVerticalConveyer;
-	delete loaderRoller;
 	delete climber;
 	delete feeder;
 	
 	intakeRoller = NULL;
+	elevatorMotor = NULL;
 	horizontalVerticalConveyer = NULL;
-	loaderRoller = NULL;
 	climber = NULL;
 	feeder = NULL;
 }
@@ -74,27 +74,6 @@ void MedicManipulator::conveyer(bool move)
 	}
 }	
 
-/*
- * void loadMagazine
- * Parameters: bool load - do we load the mag? 
- * 			   bool unload - do we unload the mag?
- * Summary: Loads and unloads the Magazine.
- */
-void MedicManipulator::loadMagazine(bool load, bool unload)
-{
-	if(load)
-	{
-		loaderRoller->Set(LOADER_DOWN, SYNC_STATE_OFF);
-	}
-	else if(unload)
-	{
-	    loaderRoller->Set(LOADER_UP, SYNC_STATE_OFF);
-	}
-	else
-	{
-		loaderRoller->Set(LOADER_OFF, SYNC_STATE_OFF);
-	}
-}
 
 /*
  * void climbPyramid
@@ -162,9 +141,12 @@ void MedicManipulator::shooterElevationControl(double goal, double speed = ELEVA
 	{
 		motorSpeed = 0;
 	}
+    
     elevatorMotor->Set(motorSpeed, SYNC_STATE_OFF);//In Deadzone(0)	
 }
-double MedicManipulator::getShooterAngle()
+
+float MedicManipulator::getShooterAngle()
 {
-  return 0;//TODO:Read Analog Pot	
+  return anglePot->GetVoltage();// * SHOOTER_POT_DEGREES_PER_VOLT;
 }
+
