@@ -9,17 +9,23 @@ class MedicManipulator
 public:
 	MedicManipulator();
 <<<<<<< HEAD
+<<<<<<< HEAD
 	MedicManipulator(UINT8 intakeRollerVictorChannel, UINT8 elevatorVictorChannel, 
 			         UINT8 conveyerVictorChannel, UINT8 climberSolA, 
 			         UINT8 climberSolB, UINT8 pnuemClimberSlot, 
 			         UINT8 pnuemFeederSlot, UINT8 feederSolA, UINT8 feederSolB,
 			         UINT8 anglePotChannel);
 =======
+=======
+>>>>>>> parent of 3678615... Elevation function worked on
 	MedicManipulator(UINT8 intakeVictorChannel, UINT8 loaderVictorChannel, 
 			         UINT8 conveyerVictorChannel, UINT8 climberVictorChannelA, 
 			         UINT8 climberVictorChannelB, UINT32 climberEncoderA,
 			         UINT32 climberEncoderB, UINT8 pnuemSlot, 
 			         UINT8 feederSolA, UINT8 feederSolB);
+<<<<<<< HEAD
+>>>>>>> parent of 3678615... Elevation function worked on
+=======
 >>>>>>> parent of 3678615... Elevation function worked on
 	~MedicManipulator();
 	
@@ -54,6 +60,9 @@ public:
 	 * void climbPyramidA
 	 * Parameters: bool climbA - does the first climbing arm move?
 	 * Summary: Move or stop the first climbing arm.
+<<<<<<< HEAD
+>>>>>>> parent of 3678615... Elevation function worked on
+=======
 >>>>>>> parent of 3678615... Elevation function worked on
 	 */
 	void climbPyramidA(bool climbA);
@@ -73,6 +82,7 @@ public:
 	void feedShooter(bool feed);
 	
 <<<<<<< HEAD
+<<<<<<< HEAD
 	void shooterElevationControl(double goal, double speed);
 	
 	float getShooterAngle();
@@ -86,10 +96,18 @@ private:
 private:
 	Victor *intakeRoller;
 	Victor *horizontalVerticalConveyer;
+=======
+private:
+	Victor *intakeRoller;
+	Victor *horizontalVerticalConveyer;
+>>>>>>> parent of 3678615... Elevation function worked on
 	Victor *loaderRoller;
 	Victor *climberA;
 	Victor *climberB;
 	Encoder *climberEncoder;
+<<<<<<< HEAD
+>>>>>>> parent of 3678615... Elevation function worked on
+=======
 >>>>>>> parent of 3678615... Elevation function worked on
 	DigitalInput *climberSwitch;
 	DoubleSolenoid *feeder;

@@ -8,8 +8,13 @@ MedicShooter::MedicShooter()
 MedicShooter::MedicShooter(UINT8 shooterWheelVictorChannel)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	shooterWheelA = new Victor(shooterWheelVictorChannelA);
 	shooterWheelB = new Victor(shooterWheelVictorChannelB);
+=======
+	shooterEncoder = new Encoder(SHOOTER_ENCODER_CHANNEL_A, SHOOTER_ENCODER_CHANNEL_B, false,Encoder::k1X);
+	shooterWheel = new Victor(shooterWheelVictorChannel);
+>>>>>>> parent of 3678615... Elevation function worked on
 =======
 	shooterEncoder = new Encoder(SHOOTER_ENCODER_CHANNEL_A, SHOOTER_ENCODER_CHANNEL_B, false,Encoder::k1X);
 	shooterWheel = new Victor(shooterWheelVictorChannel);
@@ -80,8 +85,12 @@ void MedicShooter::setVelocity(double input)
 void MedicShooter::setVictors()
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	shooterWheelA->Set(targetVelocity, SYNC_STATE_OFF);//big one
 	shooterWheelB->Set(FULL_SPEED, SYNC_STATE_OFF);//little one
+=======
+	shooterWheel->Set(targetVelocity, SYNC_STATE_OFF);
+>>>>>>> parent of 3678615... Elevation function worked on
 =======
 	shooterWheel->Set(targetVelocity, SYNC_STATE_OFF);
 >>>>>>> parent of 3678615... Elevation function worked on

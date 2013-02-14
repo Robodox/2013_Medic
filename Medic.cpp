@@ -264,6 +264,7 @@ public:
 		oi->dashboard->PutBoolean("isAtTarget", drive->isAtDriveTarget);
 		oi->dashboard->PutNumber("step", step);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		oi->dashboard->PutNumber("currentTicksD", drive->currentTicksLinear);
 		oi->dashboard->PutNumber("targetTicksD", drive->targetTicksLinear);
 		oi->dashboard->PutNumber("deltaTicksD", drive->deltaTicksLinear);
@@ -285,11 +286,16 @@ public:
 		oi->dashboard->PutNumber("errorT", drive->errorTurn);
 		oi->dashboard->PutNumber("errorDuplicateT", drive->errorTurn);
 =======
+=======
+>>>>>>> parent of 3678615... Elevation function worked on
 		oi->dashboard->PutNumber("currentTicks", drive->currentTicks);
 		oi->dashboard->PutNumber("targetTicks", drive->targetTicks);
 		oi->dashboard->PutNumber("deltaTicks", drive->deltaTicks);
 		oi->dashboard->PutNumber("error", drive->error);
 		oi->dashboard->PutNumber("errorDuplicate", drive->error);
+<<<<<<< HEAD
+>>>>>>> parent of 3678615... Elevation function worked on
+=======
 >>>>>>> parent of 3678615... Elevation function worked on
 	}
 	    		
